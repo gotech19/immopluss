@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() && (request.auth.uid == userId || request.auth.token.email == 'oussamaguesmia2@gmail.com');
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || request.auth.token.email == 'oussamaguesmia2@gmail.com');
+    }
+
+    // Properties
+    match /properties/{propertyId} {
+      allow read: if resource.data.status == 'published' || 
+                     (isAuthenticated() && (resource.data.ownerId == request.auth.uid || request.auth.token.email == 'oussamaguesmia2@gmail.com'));
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || request.auth.token.email == 'oussamaguesmia2@gmail.com');
+    }
+
+    // Favorites
+    match /favorites/{favId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Conversations
+    match /conversations/{conversationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Messages
+    match /messages/{messageId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Reports
+    match /reports/{reportId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // Saved Searches
+    match /savedSearches/{searchId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

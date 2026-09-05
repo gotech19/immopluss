@@ -1,0 +1,46 @@
+{
+  "name": "ImmoPlus — Immobilier & Annonces",
+  "short_name": "ImmoPlus",
+  "description": "Achetez, louez et vendez vos biens immobiliers simplement sur ImmoPlus.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A3D91",
+  "theme_color": "#0A3D91",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["business", "lifestyle", "shopping"],
+  "shortcuts": [
+    {
+      "name": "Publier une annonce",
+      "short_name": "Publier",
+      "description": "Déposez votre bien immobilier",
+      "url": "/?tab=publish",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Carte interactive",
+      "short_name": "Carte",
+      "description": "Rechercher sur la carte",
+      "url": "/?tab=map",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

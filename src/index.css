@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Poppins', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-arabic: 'Cairo', 'Tajawal', 'Alexandria', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #F8FAFC;
+    color: #0F172A;
+    overflow-x: hidden;
+  }
+
+  .dark body {
+    background-color: #0B0F19;
+    color: #F1F5F9;
+  }
+
+  /* Arabic Typography & Layout Refinement */
+  [dir="rtl"], html[lang="ar"], html[dir="rtl"] {
+    font-family: var(--font-arabic);
+    text-align: right;
+  }
+
+  [dir="rtl"] *, html[lang="ar"] *, html[dir="rtl"] * {
+    letter-spacing: normal !important;
+  }
+
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
+  html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] h4, html[lang="ar"] h5, html[lang="ar"] h6 {
+    font-family: var(--font-arabic);
+    line-height: 1.45;
+  }
+
+  [dir="rtl"] button, [dir="rtl"] input, [dir="rtl"] select, [dir="rtl"] textarea,
+  html[lang="ar"] button, html[lang="ar"] input, html[lang="ar"] select, html[lang="ar"] textarea {
+    font-family: var(--font-arabic);
+  }
+
+  [dir="rtl"] .uppercase, html[lang="ar"] .uppercase {
+    text-transform: none;
+  }
+}
+
+/* ImmoPlus Brand Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0B0F19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0B3D91;
+}
+
+/* Leaflet map fixups */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid rgba(11, 61, 145, 0.15) !important;
+  border-radius: 14px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 25px -5px rgba(11, 61, 145, 0.15) !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1E293B !important;
+  color: #F1F5F9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(11, 61, 145, 0.15) !important;
+}
+
+.dark .leaflet-popup-tip {
+  background: #1E293B !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: normal;
+}
+
+.leaflet-bar a {
+  background-color: #FFFFFF !important;
+  color: #0B3D91 !important;
+  border-color: #E2E8F0 !important;
+}
+
+.dark .leaflet-bar a {
+  background-color: #1E293B !important;
+  color: #FBBF24 !important;
+  border-color: #334155 !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #0B3D91 !important;
+  color: #FFFFFF !important;
+}
+
