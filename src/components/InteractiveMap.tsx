@@ -101,9 +101,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     if (!mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
 
-    // Initial center: Algeria center or first property
-    const initialLat = pickerCoordinates?.lat || properties[0]?.location.lat || 36.7538;
-    const initialLng = pickerCoordinates?.lng || properties[0]?.location.lng || 3.0588;
+    // Guard against re-initialization error if container still has leaflet id
+    if ((mapContainerRef.current as any)._leaflet_id) {
+      delete (mapContainerRef.current as any)._leaflet_id;
+    }
+
+    // Initial center: Algeria center or first valid property
+    const firstValidProp = properties.find(p => p?.location?.lat && p?.location?.lng);
+    const initialLat = pickerCoordinates?.lat || firstValidProp?.location.lat || 36.7538;
+    const initialLng = pickerCoordinates?.lng || firstValidProp?.location.lng || 3.0588;
 
     const map = L.map(mapContainerRef.current, {
       center: [initialLat, initialLng],
@@ -125,6 +131,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     markersLayerRef.current = markersLayer;
     mapInstanceRef.current = map;
 
+    // Ensure map tiles resize correctly after mounting or tab switch
+    const resizeTimeout = setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch {
+        // ignore
+      }
+    }, 200);
+
     // In picker mode, allow user to click on map to move marker
     if (isPickerMode) {
       map.on('click', (e: L.LeafletMouseEvent) => {
@@ -136,7 +151,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
 
     return () => {
-      map.remove();
+      clearTimeout(resizeTimeout);
+      try {
+        map.remove();
+      } catch {
+        // ignore
+      }
       mapInstanceRef.current = null;
     };
   }, []);
@@ -178,9 +198,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     const bounds: L.LatLngBoundsExpression = [];
 
     properties.forEach((prop) => {
+      if (!prop?.location || typeof prop.location.lat !== 'number' || typeof prop.location.lng !== 'number' || isNaN(prop.location.lat) || isNaN(prop.location.lng)) {
+        return;
+      }
+
       const isSelected = selectedProperty?.id === prop.id;
       const marker = L.marker([prop.location.lat, prop.location.lng], {
-        icon: createPropertyIcon(prop.price, prop.currency, isSelected)
+        icon: createPropertyIcon(prop.price || 0, prop.currency || 'DA', isSelected)
       });
 
       marker.on('click', () => {
@@ -196,18 +220,26 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
 
     if (bounds.length > 0 && !selectedProperty) {
-      mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+      try {
+        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+      } catch {
+        // ignore
+      }
     }
   }, [properties, selectedProperty, isPickerMode]);
 
   // Focus on selected property
   useEffect(() => {
-    if (!selectedProperty || !mapInstanceRef.current) return;
-    mapInstanceRef.current.flyTo(
-      [selectedProperty.location.lat, selectedProperty.location.lng],
-      14,
-      { duration: 1.2 }
-    );
+    if (!selectedProperty?.location || typeof selectedProperty.location.lat !== 'number' || typeof selectedProperty.location.lng !== 'number' || !mapInstanceRef.current) return;
+    try {
+      mapInstanceRef.current.flyTo(
+        [selectedProperty.location.lat, selectedProperty.location.lng],
+        14,
+        { duration: 1.2 }
+      );
+    } catch {
+      // ignore
+    }
   }, [selectedProperty]);
 
   return (

@@ -39,8 +39,9 @@ export const Logo: React.FC<LogoProps> = ({
   return (
     <div 
       id="immoplus-logo"
+      dir="ltr"
       onClick={onClick}
-      className={`inline-flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none transition-transform active:scale-95 ${className}`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none transition-transform active:scale-95 text-left ${className}`}
     >
       {/* SVG Icon matching exact WhatsApp flyer pin + house + orbit */}
       <div className={`relative flex-shrink-0 ${iconSizes[size]}`}>
@@ -106,8 +107,8 @@ export const Logo: React.FC<LogoProps> = ({
       </div>
 
       {/* Typography */}
-      <div className="flex flex-col justify-center leading-none">
-        <div className={`font-bold tracking-tight flex items-baseline ${textSizes[size]}`}>
+      <div className="flex flex-col justify-center leading-none text-left" dir="ltr">
+        <div className={`font-bold tracking-tight flex items-baseline ${textSizes[size]}`} dir="ltr">
           <span className={`${isWhiteText ? 'text-white' : 'text-[#0B3D91] dark:text-white'} font-black transition-colors`}>
             Immo
           </span>

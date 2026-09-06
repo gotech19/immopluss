@@ -14,9 +14,17 @@ import { UserDashboard } from './components/UserDashboard';
 import { AdminPanel } from './components/AdminPanel';
 import { PropertyDetailsModal } from './components/PropertyDetailsModal';
 import { AuthModal } from './components/AuthModal';
+import { InstallNotification } from './components/InstallNotification';
+import { DatabaseDiagnosticModal } from './components/DatabaseDiagnosticModal';
 
 const AppContent: React.FC = () => {
-  const { activeTab, selectedProperty, setSelectedProperty } = useApp();
+  const { 
+    activeTab, 
+    selectedProperty, 
+    setSelectedProperty,
+    dbDiagnosticOpen,
+    setDbDiagnosticOpen
+  } = useApp();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0a0a0a] text-[#e5e5e5] transition-colors relative selection:bg-[#c5a36c] selection:text-[#0a0a0a]">
@@ -51,6 +59,15 @@ const AppContent: React.FC = () => {
 
       {/* Authentication Modal */}
       <AuthModal />
+
+      {/* PWA Install Notification Prompt */}
+      <InstallNotification />
+
+      {/* Firebase Database Diagnostic Modal */}
+      <DatabaseDiagnosticModal 
+        isOpen={dbDiagnosticOpen}
+        onClose={() => setDbDiagnosticOpen(false)}
+      />
     </div>
   );
 };

@@ -18,7 +18,8 @@ import {
   ShieldCheck, 
   LogOut,
   ChevronDown,
-  LayoutDashboard
+  LayoutDashboard,
+  Database
 } from 'lucide-react';
 import { Language } from '../types';
 
@@ -36,7 +37,8 @@ export const Header: React.FC = () => {
     setAuthModalOpen,
     setAuthModalMode,
     notifications,
-    markNotificationAsRead
+    markNotificationAsRead,
+    setDbDiagnosticOpen
   } = useApp();
 
   const { userProfile, logout } = useAuth();
@@ -303,6 +305,17 @@ export const Header: React.FC = () => {
                     <span>{t('navAdmin')}</span>
                   </button>
 
+                  <button
+                    onClick={() => {
+                      setDbDiagnosticOpen(true);
+                      setUserDropdownOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-xs text-left rtl:text-right text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Database className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Base de Données Firebase</span>
+                  </button>
+
                   <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
 
                   <button
@@ -409,6 +422,16 @@ export const Header: React.FC = () => {
               className="text-xs font-semibold text-[#0B3D91] dark:text-blue-400 py-2 cursor-pointer"
             >
               {t('navAdmin')}
+            </button>
+            <button 
+              onClick={() => {
+                setDbDiagnosticOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="text-xs font-semibold text-blue-600 dark:text-blue-300 py-2 cursor-pointer inline-flex items-center gap-1"
+            >
+              <Database className="w-3.5 h-3.5" />
+              <span>Firebase</span>
             </button>
           </div>
         </div>

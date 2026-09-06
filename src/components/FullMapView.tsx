@@ -14,7 +14,7 @@ import {
 
 export const FullMapView: React.FC = () => {
   const { 
-    filteredProperties, 
+    filteredProperties = [], 
     selectedProperty, 
     setSelectedProperty, 
     requestUserLocation, 

@@ -15,8 +15,8 @@ import { PropertyCategory } from '../types';
 
 export const PropertiesListView: React.FC = () => {
   const { 
-    properties,
-    filteredProperties, 
+    properties = [],
+    filteredProperties = [], 
     filters, 
     setFilters, 
     resetFilters, 

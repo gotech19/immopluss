@@ -12,7 +12,8 @@ import {
   Users,
   Building,
   Flag,
-  Sparkles
+  Sparkles,
+  Database
 } from 'lucide-react';
 import { Property, PropertyStatus } from '../types';
 
@@ -25,7 +26,8 @@ export const AdminPanel: React.FC = () => {
     setSelectedProperty,
     reports,
     resolveReport,
-    t
+    t,
+    setDbDiagnosticOpen
   } = useApp();
   const { userProfile } = useAuth();
 
@@ -59,7 +61,15 @@ export const AdminPanel: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setDbDiagnosticOpen(true)}
+            className="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-blue-200 px-3.5 py-1.5 rounded-xl font-medium inline-flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+          >
+            <Database className="w-3.5 h-3.5 text-blue-400" />
+            <span>Tester la base Firebase</span>
+          </button>
+
           <span className="text-xs bg-[#1f1f1f] border border-white/10 text-[#e5e5e5] px-3.5 py-1.5 rounded-xl font-medium">
             Admin : {userProfile?.displayName || 'Oussama Guesmia'}
           </span>

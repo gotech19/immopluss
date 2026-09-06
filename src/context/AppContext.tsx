@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { 
   Language, 
   Direction, 
@@ -44,6 +44,7 @@ interface AppContextType {
   setSelectedProperty: (p: Property | null) => void;
   
   properties: Property[];
+  filteredProperties: Property[];
   loadingProperties: boolean;
   addProperty: (p: Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'favoritesCount' | 'referenceNumber'>) => Promise<string>;
   updatePropertyStatus: (id: string, status: Property['status']) => Promise<void>;
@@ -80,6 +81,8 @@ interface AppContextType {
   setAuthModalOpen: (open: boolean) => void;
   authModalMode: 'login' | 'register';
   setAuthModalMode: (mode: 'login' | 'register') => void;
+  dbDiagnosticOpen: boolean;
+  setDbDiagnosticOpen: (open: boolean) => void;
 }
 
 const defaultFilters: SearchFilterState = {
@@ -156,9 +159,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<string>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
-  // Auth Modal
+  // Auth & Diagnostic Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [dbDiagnosticOpen, setDbDiagnosticOpen] = useState(false);
 
   // Properties list state - Starts completely clean / blank
   const [properties, setProperties] = useState<Property[]>(() => {
@@ -274,6 +278,66 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Filters
   const [filters, setFilters] = useState<SearchFilterState>(defaultFilters);
   const resetFilters = () => setFilters(defaultFilters);
+
+  // Filtered Properties Computation
+  const filteredProperties = useMemo(() => {
+    return properties.filter(prop => {
+      // 1. Transaction type
+      if (filters.transactionType !== 'all' && prop.transactionType !== filters.transactionType) {
+        return false;
+      }
+      // 2. Property category
+      if (filters.propertyType !== 'all' && prop.propertyType !== filters.propertyType) {
+        return false;
+      }
+      // 3. City / Region
+      if (filters.city && filters.city.trim()) {
+        const queryCity = filters.city.toLowerCase().trim();
+        const propCity = (prop.location?.city || '').toLowerCase();
+        const propRegion = (prop.location?.region || '').toLowerCase();
+        const propDistrict = (prop.location?.district || '').toLowerCase();
+        if (!propCity.includes(queryCity) && !propRegion.includes(queryCity) && !propDistrict.includes(queryCity)) {
+          return false;
+        }
+      }
+      // 4. Keyword
+      if (filters.keyword && filters.keyword.trim()) {
+        const q = filters.keyword.toLowerCase().trim();
+        const titleMatch = (prop.title || '').toLowerCase().includes(q);
+        const descMatch = (prop.description || '').toLowerCase().includes(q);
+        const cityMatch = (prop.location?.city || '').toLowerCase().includes(q);
+        const refMatch = (prop.referenceNumber || '').toLowerCase().includes(q);
+        if (!titleMatch && !descMatch && !cityMatch && !refMatch) {
+          return false;
+        }
+      }
+      // 5. Price range
+      if (filters.minPrice !== undefined && filters.minPrice > 0 && prop.price < filters.minPrice) {
+        return false;
+      }
+      if (filters.maxPrice !== undefined && filters.maxPrice > 0 && prop.price > filters.maxPrice) {
+        return false;
+      }
+      // 6. Surface range
+      if (filters.minSurface !== undefined && filters.minSurface > 0 && prop.surface < filters.minSurface) {
+        return false;
+      }
+      if (filters.maxSurface !== undefined && filters.maxSurface > 0 && prop.surface > filters.maxSurface) {
+        return false;
+      }
+      // 7. Verified only
+      if (filters.verifiedOnly && !prop.verified) {
+        return false;
+      }
+      return true;
+    }).sort((a, b) => {
+      if (filters.sortBy === 'price_asc') return a.price - b.price;
+      if (filters.sortBy === 'price_desc') return b.price - a.price;
+      if (filters.sortBy === 'surface_desc') return b.surface - a.surface;
+      if (filters.sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      return 0;
+    });
+  }, [properties, filters]);
 
   // Favorites - Starts blank
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -438,6 +502,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedProperty,
       setSelectedProperty,
       properties,
+      filteredProperties,
       loadingProperties,
       addProperty,
       updatePropertyStatus,
@@ -465,7 +530,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       authModalOpen,
       setAuthModalOpen,
       authModalMode,
-      setAuthModalMode
+      setAuthModalMode,
+      dbDiagnosticOpen,
+      setDbDiagnosticOpen
     }}>
       {children}
     </AppContext.Provider>

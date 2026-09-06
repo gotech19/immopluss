@@ -5,8 +5,8 @@ export const translations = {
     // Brand
     brandName: 'ImmoPlus',
     slogan: 'Achetez • Louez • Vendez',
-    subSlogan: 'Votre immobilier, un clic plus proche !',
-    tagline: 'Trouvez votre bien idéal à vendre ou à louer',
+    subSlogan: 'Le bien parfait, dans le lieu qui vous correspond !',
+    tagline: "Trouvez le bien idéal, à l'endroit qui vous correspond",
     
     // Nav
     navHome: 'Accueil',
@@ -23,8 +23,8 @@ export const translations = {
     navLogout: 'Se déconnecter',
     
     // Hero & Search
-    heroTitle: 'Trouvez le bien qui vous correspond.',
-    heroSubtitle: 'Des milliers d’annonces vérifiées de maisons, appartements, terrains et locaux commerciaux.',
+    heroTitle: "Trouvez le bien idéal, à l'endroit qui vous correspond.",
+    heroSubtitle: 'Explorez des milliers d’annonces vérifiées : maisons, appartements, villas et terrains dans les meilleurs emplacements.',
     searchPlaceholder: 'Rechercher par ville, région, type de bien...',
     allTransactions: 'Toutes transactions',
     forSale: 'À vendre',
@@ -286,8 +286,8 @@ export const translations = {
     // Brand
     brandName: 'ImmoPlus',
     slogan: 'Buy • Rent • Sell',
-    subSlogan: 'Your real estate, one click closer!',
-    tagline: 'Find your ideal property for sale or rent',
+    subSlogan: 'The perfect property, in the place that suits you best!',
+    tagline: 'Find the ideal property in the location that truly fits you',
     
     // Nav
     navHome: 'Home',
@@ -304,8 +304,8 @@ export const translations = {
     navLogout: 'Log out',
     
     // Hero & Search
-    heroTitle: 'Find the property that fits you.',
-    heroSubtitle: 'Thousands of verified listings of houses, apartments, lands and commercial spaces.',
+    heroTitle: 'Find the ideal property, in the place that suits you best.',
+    heroSubtitle: 'Explore thousands of verified listings: houses, apartments, lands and commercial spaces in prime locations.',
     searchPlaceholder: 'Search by city, region, property type...',
     allTransactions: 'All transactions',
     forSale: 'For Sale',
@@ -565,10 +565,10 @@ export const translations = {
 
   ar: {
     // Brand
-    brandName: 'إيموبلس ImmoPlus',
+    brandName: 'ImmoPlus',
     slogan: 'اشترِ • اكترِ • بِع',
-    subSlogan: 'عقارك، بضغطة زر أقرب!',
-    tagline: 'اعثر على عقارك المثالي للبيع أو الإيجار',
+    subSlogan: 'العقار المثالي، في المكان الذي يناسبك تماماً!',
+    tagline: 'اعثر على العقار المثالي في المكان الذي يناسبك',
     
     // Nav
     navHome: 'الرئيسية',
@@ -585,8 +585,8 @@ export const translations = {
     navLogout: 'تسجيل الخروج',
     
     // Hero & Search
-    heroTitle: 'اعثر على العقار المناسب لك.',
-    heroSubtitle: 'آلاف الإعلانات العقارية الموثوقة من منازل وشقق وأراضٍ ومحلات تجارية.',
+    heroTitle: 'اعثر على العقار المثالي، في الموقع الذي يناسبك تماماً.',
+    heroSubtitle: 'استكشف آلاف الإعلانات العقارية الموثوقة من شقق وفيلات وأراضٍ ومحلات تجارية في أفضل المواقع.',
     searchPlaceholder: 'ابحث بالمدينة، الولاية، نوع العقار...',
     allTransactions: 'جميع المعاملات',
     forSale: 'للبيع',
@@ -621,7 +621,7 @@ export const translations = {
 
     // Sections
     recentProperties: 'إعلانات حديثة',
-    recentPropertiesSub: 'اكتشف أحدث العروض العقارية الموثوقة المضافة على إيموبلس',
+    recentPropertiesSub: 'اكتشف أحدث العروض العقارية الموثوقة المضافة على ImmoPlus',
     popularProperties: 'إعلانات شائعة',
     viewAllProperties: 'عرض جميع الإعلانات',
     viewAll: 'عرض الكل',
@@ -635,7 +635,7 @@ export const translations = {
     mapSectionTitle: 'استكشف العقارات على الخريطة التفاعلية',
     mapSectionSub: 'شاهد موقع الشقق، الفيلات والأراضي مباشرة في منطقتك',
     openFullMap: 'فتح الخريطة بحجم الشاشة',
-    whyChooseUsTitle: 'لماذا تختار إيموبلس ImmoPlus؟',
+    whyChooseUsTitle: 'لماذا تختار ImmoPlus؟',
     whyChooseUsSub: 'المنصة العقارية العصرية لتجربة شفافة، سريعة وموثوقة بدون وسطاء عشوائيين.',
     verifiedListingsTitle: 'إعلانات موثقة ومراقبة',
     verifiedListingsDesc: 'فريقنا يدقق كل إعلان قبل النشر لحمايتك من الإعلانات الوهمية وضمان سلامة معاملاتك.',
@@ -647,7 +647,7 @@ export const translations = {
     ctaBannerDesc: 'انضم لآلاف الملاك والوكالات العقارية. انشر إعلانك مجاناً بالصور والموقع الجغرافي.',
     publishFirstAd: 'نشر أول إعلان',
     noPropertiesYetTitle: 'لا توجد إعلانات منشورة حالياً',
-    noPropertiesYetDesc: 'كن أول من ينشر إعلاناً على إيموبلس! اعرض عقارك للبيع أو الإيجار في دقائق.',
+    noPropertiesYetDesc: 'كن أول من ينشر إعلاناً على ImmoPlus! اعرض عقارك للبيع أو الإيجار في دقائق.',
     propertiesFound: 'إعلانات متوفرة',
     propertyFound: 'إعلان متوفر',
     noPropertiesMatch: 'لا توجد عقارات تطابق معايير بحثك',
