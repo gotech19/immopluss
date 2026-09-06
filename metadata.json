@@ -2,6 +2,7 @@
   "name": "ImmoPlus",
   "description": "Plateforme immobilière professionnelle multilingue pour acheter, vendre et louer des biens immobiliers.",
   "requestFramePermissions": [
+    "camera",
     "geolocation"
   ],
   "majorCapabilities": [

@@ -11,6 +11,7 @@ import {
   PropertyImage
 } from '../types';
 import { InteractiveMap } from './InteractiveMap';
+import { CameraCaptureModal } from './CameraCaptureModal';
 import { 
   Plus, 
   Trash2, 
@@ -33,6 +34,7 @@ export const PublishWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
   // Form State
   const [transactionType, setTransactionType] = useState<TransactionType>('sale');
@@ -120,6 +122,18 @@ export const PublishWizard: React.FC = () => {
       };
       reader.readAsDataURL(file as Blob);
     });
+  };
+
+  // Add photo captured directly via in-app camera
+  const handlePhotoFromCamera = (dataUrl: string) => {
+    setImages(prev => [
+      ...prev,
+      {
+        id: `img-cam-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        url: dataUrl,
+        isMain: prev.length === 0
+      }
+    ]);
   };
 
   const removeImage = (id: string) => {
@@ -563,8 +577,20 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
               <p className="font-serif text-sm font-medium text-white">{t('dragPhotosHere')}</p>
               <p className="text-xs text-[#888888] mb-4">{t('orClickToUpload')}</p>
               
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <label className="px-4 py-2 bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer shadow-md">
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                {/* 1. Direct in-app camera button */}
+                <button
+                  type="button"
+                  onClick={() => setIsCameraModalOpen(true)}
+                  className="px-4 py-2.5 bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer shadow-md inline-flex items-center gap-2 transition-all active:scale-95"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>{t('takePhotoWithApp')}</span>
+                </button>
+
+                {/* 2. File browser */}
+                <label className="px-4 py-2.5 bg-[#1f1f1f] hover:bg-[#282828] text-white border border-white/15 text-xs font-semibold rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors">
+                  <Upload className="w-3.5 h-3.5 text-[#c5a36c]" />
                   <span>Parcourir les fichiers</span>
                   <input
                     type="file"
@@ -575,9 +601,10 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
                   />
                 </label>
 
-                <label className="px-4 py-2 bg-[#1f1f1f] hover:bg-[#252525] text-white border border-white/10 text-xs font-semibold rounded-xl cursor-pointer inline-flex items-center gap-1.5">
-                  <Camera className="w-4 h-4 text-[#c5a36c]" />
-                  <span>{t('useCamera')}</span>
+                {/* 3. System camera fallback */}
+                <label className="px-3.5 py-2.5 bg-white/5 hover:bg-white/10 text-[#aaaaaa] hover:text-white border border-white/10 text-xs font-medium rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors">
+                  <Camera className="w-3.5 h-3.5 text-[#888888]" />
+                  <span>Caméra native</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -588,6 +615,23 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
                 </label>
               </div>
             </div>
+
+            {/* Quick action bar if photos already exist */}
+            {images.length > 0 && (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs font-medium text-[#999999]">
+                  {images.length} {images.length > 1 ? 'photos ajoutées' : 'photo ajoutée'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsCameraModalOpen(true)}
+                  className="inline-flex items-center gap-1 text-xs text-[#c5a36c] hover:underline font-semibold cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{t('takePhotoWithApp')}</span>
+                </button>
+              </div>
+            )}
 
             {/* Photos Preview Grid */}
             {images.length > 0 && (
@@ -815,6 +859,14 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
         </div>
 
       </div>
+
+      {/* In-App Live Camera Capture Modal */}
+      <CameraCaptureModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        onPhotoCaptured={handlePhotoFromCamera}
+        photosCount={images.length}
+      />
 
     </div>
   );
