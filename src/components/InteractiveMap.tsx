@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Property } from '../types';
-import { useApp } from '../context/AppContext';
-import L from 'leaflet';
+import { GoogleMapsView } from './GoogleMapsView';
+import { LeafletMapView } from './LeafletMapView';
+import { Layers, Map as MapIcon, Globe, MapPin } from 'lucide-react';
 
 interface InteractiveMapProps {
   properties?: Property[];
@@ -23,233 +24,97 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   onCoordinatesChange,
   className = 'h-[500px]'
 }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersLayerRef = useRef<L.LayerGroup | null>(null);
-  const pickerMarkerRef = useRef<L.Marker | null>(null);
-
-  const { setSelectedProperty } = useApp();
-
-  // Create custom marker icon
-  const createPropertyIcon = (price: number, currency: string, isSelected: boolean) => {
-    const formattedPrice = price >= 1000000 
-      ? `${(price / 1000000).toFixed(1)}M ${currency}`
-      : `${(price / 1000).toFixed(0)}k ${currency}`;
-
-    return L.divIcon({
-      className: 'custom-property-pin',
-      html: `
-        <div style="
-          background: ${isSelected ? '#c5a36c' : '#141414'};
-          color: ${isSelected ? '#0a0a0a' : '#c5a36c'};
-          padding: 5px 10px;
-          border-radius: 20px;
-          font-weight: 700;
-          font-size: 11px;
-          letter-spacing: 0.05em;
-          white-space: nowrap;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-          border: 1px solid ${isSelected ? '#ffffff' : 'rgba(197, 163, 108, 0.6)'};
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          cursor: pointer;
-          transform: translate(-50%, -100%);
-          transition: all 0.2s ease;
-        ">
-          <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${isSelected ? '#0a0a0a' : '#c5a36c'};"></span>
-          <span>${formattedPrice}</span>
-        </div>
-      `,
-      iconSize: [0, 0],
-      iconAnchor: [0, 0]
-    });
-  };
-
-  const createPickerIcon = () => {
-    return L.divIcon({
-      className: 'custom-picker-pin',
-      html: `
-        <div style="
-          width: 34px;
-          height: 34px;
-          background: #c5a36c;
-          border: 2px solid #ffffff;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg) translate(-10px, -10px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        ">
-          <div style="
-            width: 10px;
-            height: 10px;
-            background: #0a0a0a;
-            border-radius: 50%;
-            transform: rotate(45deg);
-          "></div>
-        </div>
-      `,
-      iconSize: [34, 34],
-      iconAnchor: [17, 34]
-    });
-  };
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
-    if (mapInstanceRef.current) return;
-
-    // Guard against re-initialization error if container still has leaflet id
-    if ((mapContainerRef.current as any)._leaflet_id) {
-      delete (mapContainerRef.current as any)._leaflet_id;
-    }
-
-    // Initial center: Algeria center or first valid property
-    const firstValidProp = properties.find(p => p?.location?.lat && p?.location?.lng);
-    const initialLat = pickerCoordinates?.lat || firstValidProp?.location.lat || 36.7538;
-    const initialLng = pickerCoordinates?.lng || firstValidProp?.location.lng || 3.0588;
-
-    const map = L.map(mapContainerRef.current, {
-      center: [initialLat, initialLng],
-      zoom: isPickerMode ? 14 : 7,
-      zoomControl: true,
-      attributionControl: false
-    });
-
-    const isDark = document.documentElement.classList.contains('dark') || true;
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
-    L.tileLayer(tileUrl, {
-      maxZoom: 19
-    }).addTo(map);
-
-    const markersLayer = L.layerGroup().addTo(map);
-    markersLayerRef.current = markersLayer;
-    mapInstanceRef.current = map;
-
-    // Ensure map tiles resize correctly after mounting or tab switch
-    const resizeTimeout = setTimeout(() => {
-      try {
-        map.invalidateSize();
-      } catch {
-        // ignore
-      }
-    }, 200);
-
-    // In picker mode, allow user to click on map to move marker
-    if (isPickerMode) {
-      map.on('click', (e: L.LeafletMouseEvent) => {
-        const { lat, lng } = e.latlng;
-        if (onCoordinatesChange) {
-          onCoordinatesChange({ lat, lng });
-        }
-      });
-    }
-
-    return () => {
-      clearTimeout(resizeTimeout);
-      try {
-        map.remove();
-      } catch {
-        // ignore
-      }
-      mapInstanceRef.current = null;
-    };
-  }, []);
-
-  // Update picker marker
-  useEffect(() => {
-    if (!isPickerMode || !mapInstanceRef.current) return;
-
-    const lat = pickerCoordinates?.lat || 36.7538;
-    const lng = pickerCoordinates?.lng || 3.0588;
-
-    if (!pickerMarkerRef.current) {
-      const marker = L.marker([lat, lng], {
-        icon: createPickerIcon(),
-        draggable: true
-      }).addTo(mapInstanceRef.current);
-
-      marker.on('dragend', () => {
-        const pos = marker.getLatLng();
-        if (onCoordinatesChange) {
-          onCoordinatesChange({ lat: pos.lat, lng: pos.lng });
-        }
-      });
-
-      pickerMarkerRef.current = marker;
-    } else {
-      pickerMarkerRef.current.setLatLng([lat, lng]);
-    }
-
-    mapInstanceRef.current.panTo([lat, lng]);
-  }, [pickerCoordinates, isPickerMode]);
-
-  // Update property markers
-  useEffect(() => {
-    if (isPickerMode || !mapInstanceRef.current || !markersLayerRef.current) return;
-
-    markersLayerRef.current.clearLayers();
-
-    const bounds: L.LatLngBoundsExpression = [];
-
-    properties.forEach((prop) => {
-      if (!prop?.location || typeof prop.location.lat !== 'number' || typeof prop.location.lng !== 'number' || isNaN(prop.location.lat) || isNaN(prop.location.lng)) {
-        return;
-      }
-
-      const isSelected = selectedProperty?.id === prop.id;
-      const marker = L.marker([prop.location.lat, prop.location.lng], {
-        icon: createPropertyIcon(prop.price || 0, prop.currency || 'DA', isSelected)
-      });
-
-      marker.on('click', () => {
-        if (onSelectProperty) {
-          onSelectProperty(prop);
-        } else {
-          setSelectedProperty(prop);
-        }
-      });
-
-      markersLayerRef.current?.addLayer(marker);
-      bounds.push([prop.location.lat, prop.location.lng]);
-    });
-
-    if (bounds.length > 0 && !selectedProperty) {
-      try {
-        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
-      } catch {
-        // ignore
-      }
-    }
-  }, [properties, selectedProperty, isPickerMode]);
-
-  // Focus on selected property
-  useEffect(() => {
-    if (!selectedProperty?.location || typeof selectedProperty.location.lat !== 'number' || typeof selectedProperty.location.lng !== 'number' || !mapInstanceRef.current) return;
-    try {
-      mapInstanceRef.current.flyTo(
-        [selectedProperty.location.lat, selectedProperty.location.lng],
-        14,
-        { duration: 1.2 }
-      );
-    } catch {
-      // ignore
-    }
-  }, [selectedProperty]);
+  const [provider, setProvider] = useState<'google' | 'leaflet'>('google');
+  const [googleMapType, setGoogleMapType] = useState<'roadmap' | 'satellite' | 'hybrid'>('roadmap');
 
   return (
     <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a0a0a] ${className}`}>
-      <div ref={mapContainerRef} className="w-full h-full" />
-      {isPickerMode && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-[#121212]/95 backdrop-blur-md px-4 py-2 rounded-full text-xs font-medium text-[#e5e5e5] shadow-2xl border border-[#c5a36c]/40 pointer-events-none z-20 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#c5a36c]" />
-          <span>Cliquez sur la carte ou déplacez le repère pour positionner votre bien</span>
+      
+      {/* Top Map Switcher & Type Controls */}
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-[#121212]/90 backdrop-blur-md p-1 rounded-xl border border-white/15 shadow-xl">
+        {/* Provider Switcher */}
+        <div className="flex items-center bg-black/40 p-0.5 rounded-lg border border-white/5">
+          <button
+            type="button"
+            onClick={() => setProvider('google')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+              provider === 'google'
+                ? 'bg-[#c5a36c] text-[#0a0a0a] shadow-md'
+                : 'text-[#aaaaaa] hover:text-white'
+            }`}
+            title="Google Maps Platform"
+          >
+            <MapIcon className="w-3.5 h-3.5" />
+            <span>Google Maps</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setProvider('leaflet')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+              provider === 'leaflet'
+                ? 'bg-[#c5a36c] text-[#0a0a0a] shadow-md'
+                : 'text-[#aaaaaa] hover:text-white'
+            }`}
+            title="OpenStreetMap / CartoDB"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Plan OSM</span>
+          </button>
         </div>
+
+        {/* Google Maps View Type (Roadmap / Satellite) */}
+        {provider === 'google' && (
+          <div className="flex items-center pl-1 border-l border-white/10">
+            <button
+              type="button"
+              onClick={() =>
+                setGoogleMapType(prev => (prev === 'roadmap' ? 'hybrid' : 'roadmap'))
+              }
+              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                googleMapType === 'hybrid'
+                  ? 'bg-blue-600/30 text-blue-400 border border-blue-500/40'
+                  : 'bg-white/5 hover:bg-white/10 text-[#cccccc]'
+              }`}
+              title={googleMapType === 'hybrid' ? 'Basculer en vue Plan' : 'Basculer en vue Satellite'}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-wider">
+                {googleMapType === 'hybrid' ? 'Satellite' : 'Plan'}
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Picker Mode Instruction Banner */}
+      {isPickerMode && (
+        <div className="absolute top-3 left-3 z-20 max-w-[calc(100%-190px)] sm:max-w-md bg-[#121212]/95 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-medium text-[#e5e5e5] shadow-2xl border border-[#c5a36c]/40 pointer-events-none flex items-center gap-2">
+          <MapPin className="w-3.5 h-3.5 text-[#c5a36c] shrink-0" />
+          <span className="truncate">Cliquez sur la carte ou déplacez le repère pour positionner votre bien</span>
+        </div>
+      )}
+
+      {/* Render Map Implementation */}
+      {provider === 'google' ? (
+        <GoogleMapsView
+          properties={properties}
+          selectedProperty={selectedProperty}
+          onSelectProperty={onSelectProperty}
+          isPickerMode={isPickerMode}
+          pickerCoordinates={pickerCoordinates}
+          onCoordinatesChange={onCoordinatesChange}
+          mapType={googleMapType}
+          onFallbackToLeaflet={() => setProvider('leaflet')}
+        />
+      ) : (
+        <LeafletMapView
+          properties={properties}
+          selectedProperty={selectedProperty}
+          onSelectProperty={onSelectProperty}
+          isPickerMode={isPickerMode}
+          pickerCoordinates={pickerCoordinates}
+          onCoordinatesChange={onCoordinatesChange}
+        />
       )}
     </div>
   );
