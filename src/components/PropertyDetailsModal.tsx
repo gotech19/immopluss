@@ -20,7 +20,9 @@ import {
   ShieldCheck, 
   Copy, 
   Check, 
-  Send 
+  Send,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 interface PropertyDetailsModalProps {
@@ -35,9 +37,19 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
     toggleFavorite, 
     startConversationWithSeller,
     submitReport,
-    setAuthModalOpen
+    setAuthModalOpen,
+    deleteProperty,
+    updatePropertyStatus
   } = useApp();
   const { userProfile } = useAuth();
+
+  const isOwner = Boolean(
+    userProfile && (
+      userProfile.uid === property.ownerId || 
+      (userProfile.email && userProfile.email.toLowerCase() === property.ownerEmail?.toLowerCase()) || 
+      userProfile.role === 'admin'
+    )
+  );
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -46,6 +58,9 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
   const [reportReason, setReportReason] = useState<PropertyReport['reason']>('wrong_info');
   const [reportDetails, setReportDetails] = useState('');
   const [reportSent, setReportSent] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isDeletingProperty, setIsDeletingProperty] = useState(false);
+
 
   const favorited = isFavorite(property.id);
 
@@ -302,8 +317,64 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
             />
           </div>
 
+          {/* Espace Gestion Propriétaire / Annonceur */}
+          {isOwner && (
+            <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    Espace Annonceur (Vous êtes l'auteur de cette annonce)
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-black/10 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold">
+                  Statut : {property.status === 'published' ? 'En ligne' : property.status === 'sold_rented' ? 'Vendu / Loué' : property.status}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                Vous disposez des droits de gestion sur cette publication. Vous pouvez modifier sa disponibilité ou la retirer définitivement.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                {property.status === 'published' ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updatePropertyStatus(property.id, 'sold_rented');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/15 text-slate-800 dark:text-white text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Marquer Vendu / Loué
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updatePropertyStatus(property.id, 'published');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Remettre en ligne
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer ml-auto"
+                  title="Supprimer définitivement cette annonce"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Supprimer mon annonce</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Advertiser Profile Card & Direct Action Buttons */}
           <div className="bg-slate-50 dark:bg-[#141414] p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 space-y-4">
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img 
@@ -467,6 +538,69 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
         </div>
       )}
 
+      {/* Delete Confirmation Modal for Advertiser */}
+      {confirmDeleteOpen && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#141414] text-slate-900 dark:text-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-200 dark:border-white/15">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-slate-900 dark:text-white">Supprimer cette annonce ?</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cette action est définitive et immédiate.</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 space-y-1">
+              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{property.title}</p>
+              <p className="text-[11px] font-mono text-[#0B3D91] dark:text-[#c5a36c]">Réf: {property.referenceNumber}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                L'annonce sera définitivement effacée de la base de données Cloud Firestore et ne sera plus visible sur le site ni sur la carte interactive.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isDeletingProperty}
+                onClick={() => setConfirmDeleteOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingProperty}
+                onClick={async () => {
+                  setIsDeletingProperty(true);
+                  try {
+                    await deleteProperty(property.id);
+                    onClose();
+                  } catch (err) {
+                    console.error('Erreur lors de la suppression:', err);
+                  } finally {
+                    setIsDeletingProperty(false);
+                    setConfirmDeleteOpen(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isDeletingProperty ? (
+                  <span>Suppression en cours...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Confirmer la suppression</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+

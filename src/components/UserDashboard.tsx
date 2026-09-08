@@ -16,7 +16,7 @@ import {
   Building2,
   Plus
 } from 'lucide-react';
-import { PropertyStatus } from '../types';
+import { Property, PropertyStatus } from '../types';
 
 export const UserDashboard: React.FC = () => {
   const { 
@@ -34,6 +34,10 @@ export const UserDashboard: React.FC = () => {
   const [editingPhone, setEditingPhone] = useState(userProfile?.phone || '');
   const [editingWhatsapp, setEditingWhatsapp] = useState(userProfile?.whatsapp || '');
   const [profileSaved, setProfileSaved] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletedToast, setDeletedToast] = useState<string | null>(null);
+
 
   // User's own properties
   const myProperties = properties.filter(p => 
@@ -163,7 +167,24 @@ export const UserDashboard: React.FC = () => {
       {/* TAB CONTENT: MY PROPERTIES */}
       {activeTabSub === 'listings' && (
         <div className="space-y-3">
+          {deletedToast && (
+            <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-300 text-xs font-semibold flex items-center justify-between animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <span>{deletedToast}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeletedToast(null)}
+                className="text-emerald-400 hover:text-white text-xs cursor-pointer"
+              >
+                Fermer
+              </button>
+            </div>
+          )}
+
           {myProperties.length === 0 ? (
+
             <div className="bg-[#0f0f0f] rounded-3xl p-12 text-center border border-white/10">
               <Building2 className="w-12 h-12 text-[#555555] mx-auto mb-3" />
               <h3 className="font-serif text-lg font-medium text-white">Aucune annonce déposée</h3>
@@ -233,11 +254,13 @@ export const UserDashboard: React.FC = () => {
                   )}
 
                   <button
-                    onClick={() => deleteProperty(prop.id)}
-                    className="p-2 text-rose-400 hover:bg-rose-950/40 rounded-lg cursor-pointer transition-colors"
-                    title="Supprimer l'annonce"
+                    type="button"
+                    onClick={() => setPropertyToDelete(prop)}
+                    className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
+                    title="Supprimer définitivement cette annonce"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Supprimer</span>
                   </button>
                 </div>
               </div>
@@ -245,6 +268,7 @@ export const UserDashboard: React.FC = () => {
           )}
         </div>
       )}
+
 
       {/* TAB CONTENT: PROFILE SETTINGS */}
       {activeTabSub === 'profile' && (
@@ -298,6 +322,68 @@ export const UserDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Confirmation Modal for Property Deletion */}
+      {propertyToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#121212] border border-white/15 text-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Supprimer cette annonce ?</h3>
+                <p className="text-xs text-[#888888] mt-0.5">Cette action est définitive et irréversible.</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+              <p className="text-xs font-bold text-white truncate">{propertyToDelete.title}</p>
+              <p className="text-[11px] font-mono text-[#c5a36c]">Réf: {propertyToDelete.referenceNumber}</p>
+              <p className="text-xs text-[#aaaaaa] mt-1">
+                L'annonce sera définitivement supprimée de Cloud Firestore et retirée de la liste publique et de la carte.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setPropertyToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#aaaaaa] hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    await deleteProperty(propertyToDelete.id);
+                    setDeletedToast(`L'annonce "${propertyToDelete.title}" a été supprimée avec succès.`);
+                    setTimeout(() => setDeletedToast(null), 4000);
+                  } finally {
+                    setIsDeleting(false);
+                    setPropertyToDelete(null);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <span>Suppression en cours...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirmer la suppression</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
