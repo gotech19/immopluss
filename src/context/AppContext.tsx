@@ -167,13 +167,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Properties list state - Starts completely clean / blank
   const [properties, setProperties] = useState<Property[]>(() => {
+    const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
     const localProps = localStorage.getItem('immoplus_custom_properties');
     if (localProps) {
       try {
         const parsed = JSON.parse(localProps);
         if (Array.isArray(parsed)) {
-          // Exclude any legacy demo properties
-          const userOnly = parsed.filter((p: any) => p && !p.id?.startsWith('prop-') && !p.isDemo);
+          // Exclude any deleted or legacy demo properties
+          const userOnly = parsed.filter((p: any) => 
+            p && 
+            !p.id?.startsWith('prop-') && 
+            !p.isDemo && 
+            !deletedIds.includes(p.id)
+          );
           localStorage.setItem('immoplus_custom_properties', JSON.stringify(userOnly));
           return userOnly;
         }
@@ -192,11 +198,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const q = collection(db, 'properties');
       unsubscribe = onSnapshot(q, (snapshot) => {
+        const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
         const remoteList: Property[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as any;
-          if (!data.isDemo) {
-            remoteList.push({ id: docSnap.id, ...data });
+          // CRITICAL: Doc ID in Firestore is docSnap.id.
+          // We put ...data first, then id: docSnap.id so it is never overwritten by data.id
+          const propItem: Property = {
+            ...data,
+            id: docSnap.id,
+          };
+          if (!data.isDemo && !deletedIds.includes(docSnap.id) && !deletedIds.includes(data.id)) {
+            remoteList.push(propItem);
           }
         });
         setProperties(remoteList);
@@ -212,15 +225,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => unsubscribe();
   }, []);
 
-
   const addProperty = async (
     propData: Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'favoritesCount' | 'referenceNumber'>
   ): Promise<string> => {
-    const id = `prop-${Date.now()}`;
+    const tempId = `prop-${Date.now()}`;
     const refNum = `IMMO-${Math.floor(100000 + Math.random() * 900000)}`;
     const newProp: Property = {
       ...propData,
-      id,
+      id: tempId,
       referenceNumber: refNum,
       viewsCount: 1,
       favoritesCount: 0,
@@ -230,7 +242,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     // Nettoyage systématique des valeurs undefined pour éviter l'erreur Firestore
-    const donneesNettoyees = viderUndefined(newProp);
+    // Note: on retire le champ `id` temporaire pour que Firestore stocke un document propre
+    const { id: _, ...dataToSave } = newProp;
+    const donneesNettoyees = viderUndefined(dataToSave);
 
     try {
       const docRef = await addDoc(collection(db, 'properties'), donneesNettoyees);
@@ -242,7 +256,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       existing.unshift(newProp);
       localStorage.setItem('immoplus_custom_properties', JSON.stringify(existing));
     }
-
 
     setProperties(prev => [newProp, ...prev]);
 
@@ -260,14 +273,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...prev
     ]);
 
-    return id;
+    return newProp.id;
   };
 
   const updatePropertyStatus = async (id: string, status: Property['status']) => {
     setProperties(prev => prev.map(p => p.id === id ? { ...p, status } : p));
+    setSelectedProperty(prev => (prev?.id === id ? { ...prev, status } : prev));
     try {
       await updateDoc(doc(db, 'properties', id), { status, updatedAt: new Date().toISOString() });
     } catch (err) {
+      try {
+        const q = query(collection(db, 'properties'), where('id', '==', id));
+        const snap = await getDocs(q);
+        const updatePromises = snap.docs.map(d => updateDoc(d.ref, { status, updatedAt: new Date().toISOString() }));
+        await Promise.all(updatePromises);
+      } catch {
+        // Fallback
+      }
       // Local fallback update
       const existing = JSON.parse(localStorage.getItem('immoplus_custom_properties') || '[]');
       const updated = existing.map((p: Property) => p.id === id ? { ...p, status } : p);
@@ -276,13 +298,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteProperty = async (id: string) => {
+    // 1. Mise à jour immédiate de l'état React & fermeture de la fiche ouverte
     setProperties(prev => prev.filter(p => p.id !== id));
+    setSelectedProperty(prev => (prev?.id === id ? null : prev));
+
+    // 2. Ajout dans la liste noire des annonces supprimées (empêche onSnapshot de la réafficher)
     try {
-      await deleteDoc(doc(db, 'properties', id));
-    } catch (err) {
+      const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
+      if (!deletedIds.includes(id)) {
+        deletedIds.push(id);
+        localStorage.setItem('immoplus_deleted_properties', JSON.stringify(deletedIds));
+      }
+    } catch (e) {
+      console.warn('Error updating deleted ids:', e);
+    }
+
+    // 3. Suppression définitive du cache local
+    try {
       const existing = JSON.parse(localStorage.getItem('immoplus_custom_properties') || '[]');
       const filtered = existing.filter((p: Property) => p.id !== id);
       localStorage.setItem('immoplus_custom_properties', JSON.stringify(filtered));
+    } catch (e) {
+      console.warn('Error clearing from localStorage:', e);
+    }
+
+    // 4. Suppression définitive dans Cloud Firestore par son doc ID
+    try {
+      await deleteDoc(doc(db, 'properties', id));
+    } catch (err) {
+      console.warn('Direct deleteDoc failed for id:', id, err);
+    }
+
+    // 5. Nettoyage si le document avait été enregistré avec un champ interne { id: id }
+    try {
+      const q = query(collection(db, 'properties'), where('id', '==', id));
+      const snap = await getDocs(q);
+      const deletePromises = snap.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+    } catch (err) {
+      // Ignorer si la recherche secondaire n'est pas requise
     }
   };
 
