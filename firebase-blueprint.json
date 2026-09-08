@@ -1,0 +1,151 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile in the ImmoPlus application",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "accountType": { "type": "string", "enum": ["private_owner", "agency", "developer", "notary", "seeker"] },
+        "role": { "type": "string", "enum": ["user", "agent", "admin"] },
+        "isVerified": { "type": "boolean" },
+        "preferredLanguage": { "type": "string", "enum": ["fr", "ar", "en"] },
+        "photoURL": { "type": "string" },
+        "city": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Property": {
+      "title": "Property",
+      "description": "Real estate listing in ImmoPlus",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "category": { "type": "string" },
+        "propertyType": { "type": "string" },
+        "surface": { "type": "number" },
+        "status": { "type": "string", "enum": ["published", "draft", "sold", "rented", "archived"] },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["title", "price", "category", "propertyType", "surface", "ownerId", "status"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "User saved property favorite",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "propertyId"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct messaging thread between users",
+      "type": "object",
+      "properties": {
+        "participants": { "type": "array" },
+        "propertyId": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["participants"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat message inside a conversation",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["senderId", "content"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app user notification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "User report for inappropriate content or scams",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "reason": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["reporterId", "reason"]
+    },
+    "SavedSearch": {
+      "title": "SavedSearch",
+      "description": "User saved property searches and price alerts",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "filters": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles with identity, contact details, and role"
+    },
+    "/properties/{propertyId}": {
+      "schema": "Property",
+      "description": "Real estate properties published by users and verified agents"
+    },
+    "/favorites/{favId}": {
+      "schema": "Favorite",
+      "description": "Saved favorite property listings per user"
+    },
+    "/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Private messaging conversations between buyers and sellers"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Direct chat messages between users"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User account and inquiry notifications"
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Abuse and moderation reports reviewed by administrators"
+    },
+    "/savedSearches/{searchId}": {
+      "schema": "SavedSearch",
+      "description": "User saved property searches and price alerts"
+    }
+  }
+}

@@ -11,6 +11,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase/config';
 import { UserProfile, AccountType, Language, UserRole } from '../types';
+import { viderUndefined } from '../utils/cleanFirestore';
 
 interface AuthContextType {
   user: User | null;
@@ -60,9 +61,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           city: 'Sétif',
           createdAt: new Date().toISOString()
         };
-        await setDoc(userDocRef, newProfile);
+        await setDoc(userDocRef, viderUndefined(newProfile));
         setUserProfile(newProfile);
       }
+
     } catch (err) {
       console.warn('Profile sync fallback:', err);
       // Local fallback
@@ -177,8 +179,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, updated, { merge: true });
+        await setDoc(userDocRef, viderUndefined(updated), { merge: true });
       }
+
     } catch (err) {
       console.warn('Error updating Firestore profile:', err);
     }

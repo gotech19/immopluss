@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Property } from '../types';
 import { GoogleMapsView } from './GoogleMapsView';
 import { LeafletMapView } from './LeafletMapView';
+import { GOOGLE_MAPS_API_KEY } from '../config/maps';
 import { Layers, Map as MapIcon, Globe, MapPin } from 'lucide-react';
 
 interface InteractiveMapProps {
@@ -24,8 +25,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   onCoordinatesChange,
   className = 'h-[500px]'
 }) => {
-  const [provider, setProvider] = useState<'google' | 'leaflet'>('google');
+  const [provider, setProvider] = useState<'google' | 'leaflet'>(() => {
+    return GOOGLE_MAPS_API_KEY ? 'google' : 'leaflet';
+  });
   const [googleMapType, setGoogleMapType] = useState<'roadmap' | 'satellite' | 'hybrid'>('roadmap');
+
 
   return (
     <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a0a0a] ${className}`}>

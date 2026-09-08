@@ -257,6 +257,31 @@ const MapContent: React.FC<GoogleMapsViewProps> = ({
 };
 
 export const GoogleMapsView: React.FC<GoogleMapsViewProps> = (props) => {
+  if (!GOOGLE_MAPS_API_KEY) {
+    return (
+      <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center p-6 bg-[#121212] text-white text-center">
+        <div className="w-14 h-14 rounded-2xl bg-[#c5a36c]/10 border border-[#c5a36c]/20 flex items-center justify-center mb-4 text-[#c5a36c]">
+          <AlertCircle className="w-7 h-7" />
+        </div>
+        <h4 className="text-base font-serif font-bold text-white mb-2">
+          Clé Google Maps sécurisée
+        </h4>
+        <p className="text-xs text-[#aaaaaa] max-w-md leading-relaxed mb-4">
+          Conformément aux bonnes pratiques de sécurité, aucune clé API n'est codée en dur dans le code source client. La carte alternative OpenStreetMap est disponible sans clé.
+        </p>
+        {props.onFallbackToLeaflet && (
+          <button
+            onClick={props.onFallbackToLeaflet}
+            className="px-4 py-2.5 bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer shadow-lg transition-all flex items-center gap-2"
+          >
+            <Layers className="w-4 h-4" />
+            <span>Afficher la carte alternative (OpenStreetMap)</span>
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <APIProvider 
       apiKey={GOOGLE_MAPS_API_KEY} 
@@ -266,3 +291,4 @@ export const GoogleMapsView: React.FC<GoogleMapsViewProps> = (props) => {
     </APIProvider>
   );
 };
+

@@ -28,9 +28,13 @@ export const LeafletMapView: React.FC<LeafletMapViewProps> = ({
   const { setSelectedProperty } = useApp();
 
   const createPropertyIcon = (price: number, currency: string, isSelected: boolean) => {
-    const formattedPrice = price >= 1000000 
-      ? `${(price / 1000000).toFixed(1)}M ${currency}`
-      : `${(price / 1000).toFixed(0)}k ${currency}`;
+    // Sanitize currency string to guarantee strict text safety inside Leaflet HTML
+    const cleanCurrency = String(currency || 'DA').replace(/[^a-zA-Z0-9\s€$]/g, '').trim().slice(0, 8) || 'DA';
+    const safePrice = Number.isFinite(price) && price >= 0 ? price : 0;
+    const formattedPrice = safePrice >= 1000000 
+      ? `${(safePrice / 1000000).toFixed(1)}M ${cleanCurrency}`
+      : `${(safePrice / 1000).toFixed(0)}k ${cleanCurrency}`;
+
 
     return L.divIcon({
       className: 'custom-property-pin',

@@ -14,6 +14,7 @@ import {
 import { translations } from '../i18n/translations';
 import { initialProperties } from '../data/mockData';
 import { db } from '../firebase/config';
+import { viderUndefined } from '../utils/cleanFirestore';
 import { 
   collection, 
   getDocs, 
@@ -184,28 +185,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
   const [loadingProperties, setLoadingProperties] = useState(false);
 
-  // Sync with Firestore properties
+  // Sync with Firestore properties in real-time via onSnapshot
   useEffect(() => {
     let unsubscribe = () => {};
+    setLoadingProperties(true);
     try {
       const q = collection(db, 'properties');
       unsubscribe = onSnapshot(q, (snapshot) => {
         const remoteList: Property[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data() as any;
-          if (!doc.id.startsWith('prop-') && !data.isDemo) {
-            remoteList.push({ id: doc.id, ...data });
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          if (!data.isDemo) {
+            remoteList.push({ id: docSnap.id, ...data });
           }
         });
         setProperties(remoteList);
+        setLoadingProperties(false);
       }, (err) => {
         console.log('Using local/cached property store:', err.message);
+        setLoadingProperties(false);
       });
     } catch (err) {
       console.log('Firestore listener fallback:', err);
+      setLoadingProperties(false);
     }
     return () => unsubscribe();
   }, []);
+
 
   const addProperty = async (
     propData: Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'favoritesCount' | 'referenceNumber'>
@@ -223,8 +229,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       publishedAt: propData.status === 'published' ? new Date().toISOString() : undefined
     };
 
+    // Nettoyage systématique des valeurs undefined pour éviter l'erreur Firestore
+    const donneesNettoyees = viderUndefined(newProp);
+
     try {
-      await addDoc(collection(db, 'properties'), newProp);
+      const docRef = await addDoc(collection(db, 'properties'), donneesNettoyees);
+      newProp.id = docRef.id;
     } catch (err) {
       console.warn('Persisting locally:', err);
       // Persist in localStorage
@@ -232,6 +242,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       existing.unshift(newProp);
       localStorage.setItem('immoplus_custom_properties', JSON.stringify(existing));
     }
+
 
     setProperties(prev => [newProp, ...prev]);
 
