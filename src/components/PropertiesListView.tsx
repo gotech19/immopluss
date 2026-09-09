@@ -116,12 +116,12 @@ export const PropertiesListView: React.FC = () => {
         {filterDrawerOpen && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-4 mt-4 border-t border-slate-100 dark:border-white/[0.08] text-xs">
             <div>
-              <label className="block font-semibold text-slate-600 dark:text-[#999999] mb-1">{t('cityPlaceholder')}</label>
+              <label className="block font-semibold text-slate-600 dark:text-[#999999] mb-1">{t('location')}</label>
               <input
                 type="text"
                 value={filters.city}
                 onChange={(e) => setFilters(prev => ({ ...prev, city: e.target.value }))}
-                placeholder="ex: Alger, Oran, Sétif..."
+                placeholder="ex: Alger, Oran, Constantine..."
                 className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#181818] text-slate-900 dark:text-white placeholder-slate-400 focus:border-[#0B3D91]"
               />
             </div>

@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isVerified: true,
           preferredLanguage: 'fr',
           photoURL: firebaseUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-          city: 'Sétif',
+          city: 'Alger',
           createdAt: new Date().toISOString()
         };
         await setDoc(userDocRef, viderUndefined(newProfile));
@@ -151,8 +151,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isVerified: true,
       preferredLanguage: 'fr',
       photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      city: 'Sétif, Algérie',
-      bio: 'Propriétaire et investisseur immobilier basé à Sétif.',
+      city: 'Alger, Algérie',
+      bio: 'Propriétaire et investisseur immobilier basé à Alger.',
       createdAt: '2025-04-10T08:00:00.000Z'
     };
     setUserProfile(demoProfile);

@@ -16,6 +16,7 @@ import { PropertyDetailsModal } from './components/PropertyDetailsModal';
 import { AuthModal } from './components/AuthModal';
 import { InstallNotification } from './components/InstallNotification';
 import { DatabaseDiagnosticModal } from './components/DatabaseDiagnosticModal';
+import { AgencyContactModal } from './components/AgencyContactModal';
 
 const AppContent: React.FC = () => {
   const { 
@@ -68,6 +69,9 @@ const AppContent: React.FC = () => {
         isOpen={dbDiagnosticOpen}
         onClose={() => setDbDiagnosticOpen(false)}
       />
+
+      {/* Agency & Algiers Headquarters Contact Modal */}
+      <AgencyContactModal />
     </div>
   );
 };

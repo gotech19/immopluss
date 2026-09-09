@@ -38,7 +38,8 @@ export const Header: React.FC = () => {
     setAuthModalMode,
     notifications,
     markNotificationAsRead,
-    setDbDiagnosticOpen
+    setDbDiagnosticOpen,
+    setContactModalOpen
   } = useApp();
 
   const { userProfile, logout } = useAuth();
@@ -107,6 +108,17 @@ export const Header: React.FC = () => {
           >
             <MapPin className="w-3.5 h-3.5 text-[#0B3D91] dark:text-blue-400" />
             {t('navMap')}
+          </button>
+
+          {/* Agence Alger & Contact */}
+          <button
+            id="nav-agency-alger-btn"
+            onClick={() => setContactModalOpen(true)}
+            className="px-3 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:text-[#0B3D91] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-all inline-flex items-center gap-1.5 cursor-pointer"
+            title="Adresse & Contact de l'Agence à Alger"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Agence Alger</span>
           </button>
 
           {/* Publish Property Button Highlight */}
@@ -396,6 +408,23 @@ export const Header: React.FC = () => {
             <MapPin className="w-4 h-4 text-[#0B3D91] dark:text-blue-400" />
             <span>{t('navMap')}</span>
           </button>
+          <button
+            id="mobile-agency-alger-btn"
+            onClick={() => {
+              setContactModalOpen(true);
+              setMobileMenuOpen(false);
+            }}
+            className="w-full text-left rtl:text-right px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-[#FBBF24]" />
+              <span>Agence & Siège Alger</span>
+            </div>
+            <span className="text-[10px] bg-blue-50 text-[#0B3D91] dark:bg-blue-900/40 dark:text-blue-300 font-bold px-2 py-0.5 rounded-full">
+              Didouche Mourad
+            </span>
+          </button>
+
           <button
             onClick={() => {
               if (!userProfile) {

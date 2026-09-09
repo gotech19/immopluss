@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const HomeView: React.FC = () => {
-  const { properties, setActiveTab, t } = useApp();
+  const { properties, setActiveTab, t, setContactModalOpen } = useApp();
 
   const published = properties.filter(p => p.status === 'published');
   const featured = published.filter(p => p.featured).slice(0, 4);
@@ -185,6 +185,14 @@ export const HomeView: React.FC = () => {
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 {t('directContactDesc')}
               </p>
+              <button
+                id="home-contact-agency-btn"
+                onClick={() => setContactModalOpen(true)}
+                className="pt-1 text-xs font-bold text-[#0B3D91] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Siège & Agence Alger (Didouche Mourad)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
             <div className="bg-white dark:bg-[#121212] p-6 sm:p-7 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-sm hover:shadow-md space-y-3.5 hover:border-[#0B3D91]/40 transition-all">

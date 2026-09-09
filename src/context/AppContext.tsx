@@ -85,6 +85,8 @@ interface AppContextType {
   setAuthModalMode: (mode: 'login' | 'register') => void;
   dbDiagnosticOpen: boolean;
   setDbDiagnosticOpen: (open: boolean) => void;
+  contactModalOpen: boolean;
+  setContactModalOpen: (open: boolean) => void;
 }
 
 const defaultFilters: SearchFilterState = {
@@ -161,10 +163,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<string>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
-  // Auth & Diagnostic Modals
+  // Auth, Diagnostic & Contact Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [dbDiagnosticOpen, setDbDiagnosticOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
   // Demo / Example IDs to always purge from blank state
   const DEMO_EXAMPLE_IDS = [
@@ -683,7 +686,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       authModalMode,
       setAuthModalMode,
       dbDiagnosticOpen,
-      setDbDiagnosticOpen
+      setDbDiagnosticOpen,
+      contactModalOpen,
+      setContactModalOpen
     }}>
       {children}
     </AppContext.Provider>

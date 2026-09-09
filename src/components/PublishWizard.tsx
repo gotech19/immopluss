@@ -72,15 +72,15 @@ export const PublishWizard: React.FC = () => {
     }
   ]);
 
-  // Location state
+  // Location state (Defaulted to Alger, Algérie)
   const [location, setLocation] = useState<LocationData>({
     country: 'Algérie',
-    region: 'Sétif',
-    city: 'Sétif',
-    district: 'Centre Ville',
-    address: 'Avenue de la Liberté, Sétif',
-    lat: 36.1906,
-    lng: 5.4137
+    region: 'Alger',
+    city: 'Alger',
+    district: 'Alger Centre',
+    address: 'Boulevard Didouche Mourad, Alger Centre, Alger',
+    lat: 36.7538,
+    lng: 3.0588
   });
   const [locationPrivacy, setLocationPrivacy] = useState<LocationPrivacy>('approximate');
   const [addressSearchQuery, setAddressSearchQuery] = useState('');
@@ -723,17 +723,61 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
               </form>
             </div>
 
-            {/* Coordinates and Address preview */}
-            <div className="p-3 bg-[#161616] rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 border border-white/10">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#c5a36c] shrink-0" />
-                <span className="font-semibold text-white">
-                  {location.address || `${location.city}, ${location.region}, ${location.country}`}
+            {/* Quick preset locations (Alger & environs) */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+              <span className="text-[11px] text-[#888888] shrink-0 font-medium">Raccourcis Alger :</span>
+              {[
+                { label: 'Alger Centre', district: 'Alger Centre', address: 'Boulevard Didouche Mourad, Alger Centre, Alger', lat: 36.7538, lng: 3.0588 },
+                { label: 'Hydra', district: 'Hydra', address: 'Boulevard Sidi Yahia, Hydra, Alger', lat: 36.7441, lng: 3.0425 },
+                { label: 'Bab Ezzouar', district: 'Bab Ezzouar', address: 'Cité des Affaires, Bab Ezzouar, Alger', lat: 36.7214, lng: 3.1828 },
+                { label: 'Kouba', district: 'Kouba', address: 'Centre Ville, Kouba, Alger', lat: 36.7289, lng: 3.0850 },
+                { label: 'Chéraga', district: 'Chéraga', address: 'Dely Ibrahim / Chéraga, Alger', lat: 36.7675, lng: 2.9558 },
+                { label: 'Oran', district: 'Front de Mer', address: 'Front de Mer, Oran', lat: 35.6987, lng: -0.6349 },
+                { label: 'Sétif', district: 'Centre Ville', address: 'Avenue de la Liberté, Sétif', lat: 36.1906, lng: 5.4137 }
+              ].map((loc) => (
+                <button
+                  key={loc.label}
+                  type="button"
+                  onClick={() => {
+                    setLocation({
+                      country: 'Algérie',
+                      region: loc.label.includes('Oran') ? 'Oran' : loc.label.includes('Sétif') ? 'Sétif' : 'Alger',
+                      city: loc.label.includes('Oran') ? 'Oran' : loc.label.includes('Sétif') ? 'Sétif' : 'Alger',
+                      district: loc.district,
+                      address: loc.address,
+                      lat: loc.lat,
+                      lng: loc.lng
+                    });
+                  }}
+                  className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                    Math.abs(location.lat - loc.lat) < 0.001 && Math.abs(location.lng - loc.lng) < 0.001
+                      ? 'border-[#c5a36c] bg-[#c5a36c]/20 text-[#c5a36c] font-bold'
+                      : 'border-white/10 bg-[#161616] text-[#aaaaaa] hover:border-white/20 hover:text-white'
+                  }`}
+                >
+                  📍 {loc.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Coordinates and Address preview & editable field */}
+            <div className="p-3 bg-[#161616] rounded-xl text-xs space-y-1.5 border border-white/10">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-[#999999] font-medium">Adresse saisie :</span>
+                <span className="font-mono text-[11px] text-[#888888]">
+                  GPS: {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
                 </span>
               </div>
-              <span className="font-mono text-[#888888]">
-                {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-              </span>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#c5a36c] shrink-0" />
+                <input
+                  type="text"
+                  value={location.address}
+                  onChange={(e) => setLocation(prev => ({ ...prev, address: e.target.value }))}
+                  placeholder="Ex: Boulevard Didouche Mourad, Alger Centre"
+                  className="w-full bg-[#111111] border border-white/15 focus:border-[#c5a36c] rounded-lg text-white text-xs py-1.5 px-2.5 outline-none font-medium"
+                />
+              </div>
             </div>
 
             {/* Interactive Leaflet Map Picker */}

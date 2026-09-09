@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { t, lang, setLang, setActiveTab } = useApp();
+  const { t, lang, setLang, setActiveTab, setContactModalOpen } = useApp();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
@@ -94,23 +94,37 @@ export const Footer: React.FC = () => {
 
           {/* Contact & Verification */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#FBBF24]">Contact & Confiance</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#FBBF24]">Contact & Siège Alger</h4>
             <div className="space-y-2.5 text-xs text-slate-300">
-              <p className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#FBBF24] shrink-0" />
-                <span>Sétif / Alger, Algérie</span>
-              </p>
+              <button
+                id="footer-agency-address-btn"
+                onClick={() => setContactModalOpen(true)}
+                className="flex items-start gap-2 text-left hover:text-[#FBBF24] transition-colors cursor-pointer group"
+                title="Voir l'agence d'Alger et les horaires"
+              >
+                <MapPin className="w-4 h-4 text-[#FBBF24] shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                <span className="font-medium underline decoration-slate-600 underline-offset-2">Boulevard Didouche Mourad, Alger Centre, Alger, Algérie</span>
+              </button>
               <p className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#FBBF24] shrink-0" />
-                <span>+213 (0) 555 12 34 56</span>
+                <a href="tel:+213555123456" className="hover:text-white transition-colors">+213 (0) 555 12 34 56</a>
               </p>
               <p className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#FBBF24] shrink-0" />
-                <span>contact@immoplus.dz</span>
+                <a href="mailto:contact@immoplus.dz" className="hover:text-white transition-colors">contact@immoplus.dz</a>
               </p>
-              <div className="pt-2 flex items-center gap-1.5 text-[11px] text-[#FBBF24] font-bold">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Plateforme certifiée & vérifiée</span>
+              <div className="pt-2 flex items-center justify-between">
+                <button
+                  id="footer-open-agency-btn"
+                  onClick={() => setContactModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-[#0B3D91] hover:bg-[#082E6E] text-white text-[11px] font-bold inline-flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                >
+                  <span>Infos Agence Alger</span>
+                </button>
+                <div className="flex items-center gap-1 text-[11px] text-[#FBBF24] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Certifié</span>
+                </div>
               </div>
             </div>
           </div>
