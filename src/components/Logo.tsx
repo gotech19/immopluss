@@ -21,17 +21,17 @@ export const Logo: React.FC<LogoProps> = ({
   const { t } = useApp();
 
   const iconSizes = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
-    xl: 'w-20 h-20'
+    sm: 'w-7 h-7 sm:w-8 sm:h-8',
+    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    lg: 'w-11 h-11 sm:w-14 sm:h-14',
+    xl: 'w-16 h-16 sm:w-20 sm:h-20'
   };
 
   const textSizes = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl',
-    xl: 'text-5xl'
+    sm: 'text-base sm:text-lg',
+    md: 'text-xl sm:text-2xl',
+    lg: 'text-2xl sm:text-3xl',
+    xl: 'text-4xl sm:text-5xl'
   };
 
   const isWhiteText = variant === 'white' || variant === 'dark';
@@ -41,7 +41,7 @@ export const Logo: React.FC<LogoProps> = ({
       id="immoplus-logo"
       dir="ltr"
       onClick={onClick}
-      className={`inline-flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none transition-transform active:scale-95 text-left ${className}`}
+      className={`inline-flex items-center gap-2 sm:gap-3 cursor-pointer select-none transition-transform active:scale-95 text-left shrink-0 ${className}`}
     >
       {/* SVG Icon matching exact WhatsApp flyer pin + house + orbit */}
       <div className={`relative flex-shrink-0 ${iconSizes[size]}`}>
@@ -118,13 +118,13 @@ export const Logo: React.FC<LogoProps> = ({
         </div>
 
         {showSubtitle && (
-          <div className="flex items-center gap-1 text-[10px] font-bold text-[#0B3D91] dark:text-blue-300 tracking-wider uppercase mt-1">
+          <div className="hidden sm:flex items-center gap-1 text-[10px] font-bold text-[#0B3D91] dark:text-blue-300 tracking-wider uppercase mt-0.5 sm:mt-1">
             <span>{t('slogan')}</span>
           </div>
         )}
 
         {showSlogan && !showSubtitle && (
-          <span className={`text-[10px] font-medium tracking-wide mt-1 ${isWhiteText ? 'text-blue-100/80' : 'text-slate-500 dark:text-slate-400'}`}>
+          <span className={`hidden sm:inline-block text-[10px] font-medium tracking-wide mt-0.5 sm:mt-1 ${isWhiteText ? 'text-blue-100/80' : 'text-slate-500 dark:text-slate-400'}`}>
             {t('subSlogan')}
           </span>
         )}

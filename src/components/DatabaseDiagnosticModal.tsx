@@ -9,9 +9,18 @@ interface DatabaseDiagnosticModalProps {
 }
 
 export const DatabaseDiagnosticModal: React.FC<DatabaseDiagnosticModalProps> = ({ isOpen, onClose }) => {
-  const { t, lang, properties } = useApp();
+  const { t, lang, properties, clearAllProperties } = useApp();
   const [testing, setTesting] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [result, setResult] = useState<DatabaseTestResult | null>(null);
+
+  const handleClearAll = async () => {
+    if (confirm('Voulez-vous vider toutes les annonces et remettre l’application entièrement vierge (0 annonce) ?')) {
+      setClearing(true);
+      await clearAllProperties();
+      setClearing(false);
+    }
+  };
 
   const runTest = async () => {
     setTesting(true);
@@ -154,9 +163,18 @@ export const DatabaseDiagnosticModal: React.FC<DatabaseDiagnosticModalProps> = (
         {/* Local Persistence Reassurance */}
         <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-400 mb-5 flex items-start gap-2.5">
           <Shield className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-          <p className="leading-relaxed">
-            <strong>Mode résilient actif :</strong> L'application ImmoPlus continue de fonctionner à 100% avec persistance locale sécurisée en attendant l'activation de Firestore.
-          </p>
+          <div className="flex-1 leading-relaxed">
+            <p><strong>Application vierge :</strong> {properties.length} annonce(s) enregistrée(s).</p>
+            {properties.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                disabled={clearing}
+                className="mt-2 text-rose-500 hover:text-rose-600 font-bold underline cursor-pointer inline-flex items-center gap-1 text-[11px]"
+              >
+                {clearing ? 'Suppression...' : 'Vider et remettre à zéro (vierge)'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Footer Actions */}

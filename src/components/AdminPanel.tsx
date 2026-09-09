@@ -23,6 +23,7 @@ export const AdminPanel: React.FC = () => {
     updatePropertyStatus, 
     togglePropertyVerified, 
     deleteProperty, 
+    clearAllProperties,
     setSelectedProperty,
     reports,
     resolveReport,
@@ -62,6 +63,20 @@ export const AdminPanel: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {properties.length > 0 && (
+            <button
+              onClick={async () => {
+                if (confirm('Voulez-vous vider toutes les annonces et remettre l’application vierge ?')) {
+                  await clearAllProperties();
+                }
+              }}
+              className="text-xs bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-rose-200 px-3.5 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+              <span>Vider les annonces (Vierge)</span>
+            </button>
+          )}
+
           <button
             onClick={() => setDbDiagnosticOpen(true)}
             className="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-blue-200 px-3.5 py-1.5 rounded-xl font-medium inline-flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
@@ -156,26 +171,26 @@ export const AdminPanel: React.FC = () => {
             pendingProperties.map((prop) => (
               <div 
                 key={prop.id}
-                className="bg-[#0f0f0f] rounded-2xl border border-white/10 p-4 sm:p-5 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
+                className="bg-[#0f0f0f] rounded-2xl border border-white/10 p-3.5 sm:p-5 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 w-full lg:w-auto">
                   <img 
                     src={prop.images[0]?.url} 
                     alt="" 
-                    className="w-24 h-20 rounded-xl object-cover shrink-0 border border-white/10"
+                    className="w-full sm:w-28 h-36 sm:h-24 rounded-xl object-cover shrink-0 border border-white/10"
                   />
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#c5a36c] text-[#0a0a0a]">
                         {prop.transactionType === 'sale' ? 'À vendre' : 'À louer'}
                       </span>
                       <span className="text-[11px] font-mono text-[#777777]">Réf: {prop.referenceNumber}</span>
                     </div>
 
-                    <h3 className="font-serif text-sm sm:text-base font-medium text-white">
+                    <h3 className="font-serif text-sm sm:text-base font-medium text-white truncate">
                       {prop.title}
                     </h3>
-                    <p className="text-xs text-[#888888]">
+                    <p className="text-xs text-[#888888] truncate">
                       Annonceur : <span className="font-semibold text-[#e5e5e5]">{prop.ownerName}</span> ({prop.ownerEmail}, {prop.ownerPhone})
                     </p>
                     <p className="text-xs font-serif font-medium text-[#c5a36c] mt-1">
@@ -185,10 +200,10 @@ export const AdminPanel: React.FC = () => {
                 </div>
 
                 {/* Moderation Controls */}
-                <div className="flex items-center gap-2 self-end lg:self-center">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
                   <button
                     onClick={() => setSelectedProperty(prop)}
-                    className="px-3 py-2 rounded-xl border border-white/10 text-white text-xs font-semibold hover:bg-[#1a1a1a] flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="flex-1 sm:flex-none justify-center px-3 py-2 rounded-xl border border-white/10 text-white text-xs font-semibold hover:bg-[#1a1a1a] flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <Eye className="w-4 h-4 text-[#c5a36c]" />
                     <span>Examiner</span>
@@ -196,7 +211,7 @@ export const AdminPanel: React.FC = () => {
 
                   <button
                     onClick={() => handleReject(prop.id)}
-                    className="px-3 py-2 rounded-xl bg-rose-950/40 border border-rose-800/30 text-rose-300 hover:bg-rose-900/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="flex-1 sm:flex-none justify-center px-3 py-2 rounded-xl bg-rose-950/40 border border-rose-800/30 text-rose-300 hover:bg-rose-900/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <X className="w-4 h-4" />
                     <span>{t('adminReject')}</span>
@@ -204,7 +219,7 @@ export const AdminPanel: React.FC = () => {
 
                   <button
                     onClick={() => handleApprove(prop.id)}
-                    className="px-4 py-2 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+                    className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
                   >
                     <Check className="w-4 h-4" />
                     <span>{t('adminApprove')}</span>
@@ -237,7 +252,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end sm:self-center">
                 <button
                   onClick={() => togglePropertyVerified(prop.id)}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
@@ -271,7 +286,7 @@ export const AdminPanel: React.FC = () => {
             </div>
           ) : (
             reports.map((r) => (
-              <div key={r.id} className="bg-[#0f0f0f] rounded-2xl border border-white/10 p-4 flex items-center justify-between">
+              <div key={r.id} className="bg-[#0f0f0f] rounded-2xl border border-white/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-950/50 border border-rose-800/30 text-rose-300">
                     Motif: {r.reason}
@@ -284,7 +299,7 @@ export const AdminPanel: React.FC = () => {
 
                 <button
                   onClick={() => resolveReport(r.id)}
-                  className="px-3 py-1.5 rounded-xl bg-[#181818] hover:bg-[#202020] border border-white/10 text-xs font-semibold text-white cursor-pointer transition-colors"
+                  className="self-end sm:self-center px-3 py-1.5 rounded-xl bg-[#181818] hover:bg-[#202020] border border-white/10 text-xs font-semibold text-white cursor-pointer transition-colors"
                 >
                   Marquer résolu
                 </button>

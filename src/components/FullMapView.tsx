@@ -84,7 +84,7 @@ export const FullMapView: React.FC = () => {
     (filters.bedrooms && filters.bedrooms !== 'all' ? 1 : 0);
 
   return (
-    <div className="relative h-[calc(100vh-120px)] min-h-[550px] w-full overflow-hidden flex flex-col">
+    <div className="relative h-[calc(100dvh-4rem-4rem)] md:h-[calc(100dvh-5rem-4.5rem)] lg:h-[calc(100vh-5rem)] min-h-[460px] w-full overflow-hidden flex flex-col">
       
       {/* Top Floating Map Search & Filters Toolbar */}
       <div className="z-20 bg-slate-900/95 backdrop-blur-md border-b border-white/10 px-3 py-2.5 sm:px-4 shadow-xl">
@@ -270,7 +270,7 @@ export const FullMapView: React.FC = () => {
           {/* Floating Toggle Sidebar button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="absolute bottom-6 left-3 sm:left-4 z-20 p-2 sm:p-2.5 rounded-xl bg-slate-900/95 backdrop-blur-md text-white hover:text-rose-400 shadow-2xl border border-white/15 hover:border-rose-500 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+            className="absolute bottom-20 sm:bottom-6 left-3 sm:left-4 z-20 p-2 sm:p-2.5 rounded-xl bg-slate-900/95 backdrop-blur-md text-white hover:text-rose-400 shadow-2xl border border-white/15 hover:border-rose-500 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
           >
             <span>{sidebarOpen ? 'Masquer la liste' : `Liste (${filteredProperties.length})`}</span>
             {sidebarOpen ? <ChevronLeft className="w-4 h-4 text-rose-500" /> : <ChevronRight className="w-4 h-4 text-rose-500" />}
@@ -278,7 +278,7 @@ export const FullMapView: React.FC = () => {
 
           {/* Floating Selected Property Bottom Card (Requirement #4: En cliquant sur le bien, une fiche résumée apparaît) */}
           {selectedProperty && (
-            <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-25 w-[92vw] max-w-md animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-25 w-[94vw] sm:w-[420px] max-w-md animate-in fade-in slide-in-from-bottom-4 duration-200">
               <div className="bg-slate-900 text-white rounded-2xl overflow-hidden border border-rose-500/60 shadow-2xl p-3 flex gap-3 relative backdrop-blur-lg">
                 <button
                   type="button"

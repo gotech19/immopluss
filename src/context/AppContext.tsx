@@ -50,6 +50,7 @@ interface AppContextType {
   addProperty: (p: Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'favoritesCount' | 'referenceNumber'>) => Promise<string>;
   updatePropertyStatus: (id: string, status: Property['status']) => Promise<void>;
   deleteProperty: (id: string) => Promise<void>;
+  clearAllProperties: () => Promise<void>;
   
   filters: SearchFilterState;
   setFilters: React.Dispatch<React.SetStateAction<SearchFilterState>>;
@@ -165,7 +166,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [dbDiagnosticOpen, setDbDiagnosticOpen] = useState(false);
 
-  // Properties list state - Seeded with initial sample properties if no local/remote items exist yet
+  // Demo / Example IDs to always purge from blank state
+  const DEMO_EXAMPLE_IDS = [
+    'prop-alger-bab-ezzouar',
+    'prop-oran-akid-lotfi',
+    'prop-alger-hydra',
+    'prop-alger-centre-f3',
+    'prop-setif-terrain',
+    'prop-rouiba-hangar'
+  ];
+
+  // Properties list state - Initialized completely empty (Vierge)
   const [properties, setProperties] = useState<Property[]>(() => {
     const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
     const localProps = localStorage.getItem('immoplus_custom_properties');
@@ -175,17 +186,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(parsed) && parsed.length > 0) {
           const userOnly = parsed.filter((p: any) => 
             p && 
-            !deletedIds.includes(p.id)
+            !deletedIds.includes(p.id) &&
+            !DEMO_EXAMPLE_IDS.includes(p.id) &&
+            !p.isDemo
           );
           if (userOnly.length > 0) {
             return userOnly;
           }
         }
       } catch {
-        // fallback to initial properties
+        // empty
       }
     }
-    return initialProperties.filter(p => !deletedIds.includes(p.id));
+    return [];
   });
   const [loadingProperties, setLoadingProperties] = useState(false);
 
@@ -204,7 +217,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...data,
             id: docSnap.id,
           };
-          if (!deletedIds.includes(docSnap.id) && !deletedIds.includes(data.id)) {
+          if (
+            !deletedIds.includes(docSnap.id) && 
+            !deletedIds.includes(data.id) &&
+            !DEMO_EXAMPLE_IDS.includes(docSnap.id) &&
+            !DEMO_EXAMPLE_IDS.includes(data.id) &&
+            !data.isDemo
+          ) {
             remoteList.push(propItem);
           }
         });
@@ -212,13 +231,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (remoteList.length > 0) {
           setProperties(remoteList);
         } else {
-          // If Firestore has no documents yet, provide the initial sample properties
+          // If Firestore has no documents, check if user has created custom properties in local cache
           const localProps = localStorage.getItem('immoplus_custom_properties');
           if (localProps) {
             try {
               const parsed = JSON.parse(localProps);
               if (Array.isArray(parsed) && parsed.length > 0) {
-                setProperties(parsed.filter(p => !deletedIds.includes(p.id)));
+                const userOnly = parsed.filter(p => 
+                  p && 
+                  !deletedIds.includes(p.id) && 
+                  !DEMO_EXAMPLE_IDS.includes(p.id) && 
+                  !p.isDemo
+                );
+                setProperties(userOnly);
                 setLoadingProperties(false);
                 return;
               }
@@ -226,7 +251,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               // ignore
             }
           }
-          setProperties(initialProperties.filter(p => !deletedIds.includes(p.id)));
+          setProperties([]);
         }
         setLoadingProperties(false);
       }, (err) => {
@@ -352,6 +377,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await Promise.all(deletePromises);
     } catch (err) {
       // Ignorer si la recherche secondaire n'est pas requise
+    }
+  };
+
+  // Vider totalement toutes les annonces et exemples (Mettre l'application vierge)
+  const clearAllProperties = async () => {
+    // 1. Reset React state immediately
+    const currentIds = properties.map(p => p.id);
+    setProperties([]);
+    setSelectedProperty(null);
+
+    // 2. Vider le stockage local
+    try {
+      localStorage.removeItem('immoplus_custom_properties');
+      const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
+      const allBlacklisted = Array.from(new Set([...deletedIds, ...currentIds, ...DEMO_EXAMPLE_IDS]));
+      localStorage.setItem('immoplus_deleted_properties', JSON.stringify(allBlacklisted));
+    } catch (e) {
+      console.warn('Error clearing local storage:', e);
+    }
+
+    // 3. Vider Cloud Firestore
+    try {
+      const snap = await getDocs(collection(db, 'properties'));
+      const deletePromises = snap.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+    } catch (err) {
+      console.warn('Firestore purge error:', err);
     }
   };
 
@@ -605,6 +657,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addProperty,
       updatePropertyStatus,
       deleteProperty,
+      clearAllProperties,
       filters,
       setFilters,
       resetFilters,

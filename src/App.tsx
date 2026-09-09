@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
       <Header />
 
       {/* Main Routed View */}
-      <main className="flex-1 pb-20 lg:pb-0">
+      <main className={`flex-1 ${activeTab === 'map' ? 'pb-16 lg:pb-0 overflow-hidden' : 'pb-24 sm:pb-20 lg:pb-8'}`}>
         {activeTab === 'home' && <HomeView />}
         {activeTab === 'properties' && <PropertiesListView />}
         {activeTab === 'map' && <FullMapView />}
@@ -43,8 +43,8 @@ const AppContent: React.FC = () => {
         {activeTab === 'admin' && <AdminPanel />}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer (hidden on interactive map for full screen immersive experience) */}
+      {activeTab !== 'map' && <Footer />}
 
       {/* Mobile Bottom Bar */}
       <BottomNav />
