@@ -121,9 +121,9 @@ export const CategoryChips: React.FC = () => {
   };
 
   return (
-    <div className="py-6 sm:py-8 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/60 dark:border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <div className="py-4 sm:py-8 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/60 dark:border-slate-800">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
           {categories.map((cat) => {
             const isSelected = filters.propertyType === cat.id;
             return (
@@ -131,16 +131,16 @@ export const CategoryChips: React.FC = () => {
                 key={cat.id}
                 id={`category-${cat.id}`}
                 onClick={() => handleSelect(cat.id)}
-                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl border transition-all text-center group cursor-pointer ${
+                className={`flex flex-col items-center justify-center p-3 sm:p-5 min-h-[90px] sm:min-h-[115px] rounded-2xl border transition-all text-center group cursor-pointer active:scale-95 ${
                   isSelected
                     ? 'border-[#0B3D91] bg-white dark:bg-slate-900 ring-2 ring-[#0B3D91]/20 shadow-md scale-102'
                     : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-[#0B3D91]/40 hover:shadow-lg hover:-translate-y-0.5'
                 }`}
               >
-                <div className="mb-2.5 transition-transform group-hover:scale-110 flex items-center justify-center">
+                <div className="mb-2 sm:mb-2.5 transition-transform group-hover:scale-110 flex items-center justify-center [&>svg]:w-7 [&>svg]:h-7 sm:[&>svg]:w-9 sm:[&>svg]:h-9">
                   {cat.icon}
                 </div>
-                <span className={`text-xs sm:text-sm font-semibold tracking-tight leading-snug ${
+                <span className={`text-xs sm:text-sm font-semibold tracking-tight leading-snug line-clamp-1 sm:line-clamp-2 ${
                   isSelected ? 'text-[#0B3D91] dark:text-blue-400 font-bold' : 'text-slate-800 dark:text-slate-200 group-hover:text-[#0B3D91]'
                 }`}>
                   {cat.label}

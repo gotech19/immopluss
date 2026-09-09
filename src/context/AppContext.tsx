@@ -165,29 +165,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [dbDiagnosticOpen, setDbDiagnosticOpen] = useState(false);
 
-  // Properties list state - Starts completely clean / blank
+  // Properties list state - Seeded with initial sample properties if no local/remote items exist yet
   const [properties, setProperties] = useState<Property[]>(() => {
     const deletedIds: string[] = JSON.parse(localStorage.getItem('immoplus_deleted_properties') || '[]');
     const localProps = localStorage.getItem('immoplus_custom_properties');
     if (localProps) {
       try {
         const parsed = JSON.parse(localProps);
-        if (Array.isArray(parsed)) {
-          // Exclude any deleted or legacy demo properties
+        if (Array.isArray(parsed) && parsed.length > 0) {
           const userOnly = parsed.filter((p: any) => 
             p && 
-            !p.id?.startsWith('prop-') && 
-            !p.isDemo && 
             !deletedIds.includes(p.id)
           );
-          localStorage.setItem('immoplus_custom_properties', JSON.stringify(userOnly));
-          return userOnly;
+          if (userOnly.length > 0) {
+            return userOnly;
+          }
         }
       } catch {
-        return [];
+        // fallback to initial properties
       }
     }
-    return [];
+    return initialProperties.filter(p => !deletedIds.includes(p.id));
   });
   const [loadingProperties, setLoadingProperties] = useState(false);
 
@@ -202,17 +200,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const remoteList: Property[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as any;
-          // CRITICAL: Doc ID in Firestore is docSnap.id.
-          // We put ...data first, then id: docSnap.id so it is never overwritten by data.id
           const propItem: Property = {
             ...data,
             id: docSnap.id,
           };
-          if (!data.isDemo && !deletedIds.includes(docSnap.id) && !deletedIds.includes(data.id)) {
+          if (!deletedIds.includes(docSnap.id) && !deletedIds.includes(data.id)) {
             remoteList.push(propItem);
           }
         });
-        setProperties(remoteList);
+        
+        if (remoteList.length > 0) {
+          setProperties(remoteList);
+        } else {
+          // If Firestore has no documents yet, provide the initial sample properties
+          const localProps = localStorage.getItem('immoplus_custom_properties');
+          if (localProps) {
+            try {
+              const parsed = JSON.parse(localProps);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setProperties(parsed.filter(p => !deletedIds.includes(p.id)));
+                setLoadingProperties(false);
+                return;
+              }
+            } catch {
+              // ignore
+            }
+          }
+          setProperties(initialProperties.filter(p => !deletedIds.includes(p.id)));
+        }
         setLoadingProperties(false);
       }, (err) => {
         console.log('Using local/cached property store:', err.message);
@@ -355,13 +370,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (filters.propertyType !== 'all' && prop.propertyType !== filters.propertyType) {
         return false;
       }
-      // 3. City / Region
+      // 3. City / Region / Neighborhood / Zone
       if (filters.city && filters.city.trim()) {
         const queryCity = filters.city.toLowerCase().trim();
         const propCity = (prop.location?.city || '').toLowerCase();
         const propRegion = (prop.location?.region || '').toLowerCase();
         const propDistrict = (prop.location?.district || '').toLowerCase();
-        if (!propCity.includes(queryCity) && !propRegion.includes(queryCity) && !propDistrict.includes(queryCity)) {
+        const propNeighborhood = (prop.location?.neighborhood || '').toLowerCase();
+        const propAddress = (prop.location?.address || '').toLowerCase();
+        if (
+          !propCity.includes(queryCity) && 
+          !propRegion.includes(queryCity) && 
+          !propDistrict.includes(queryCity) &&
+          !propNeighborhood.includes(queryCity) &&
+          !propAddress.includes(queryCity)
+        ) {
           return false;
         }
       }
@@ -371,8 +394,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const titleMatch = (prop.title || '').toLowerCase().includes(q);
         const descMatch = (prop.description || '').toLowerCase().includes(q);
         const cityMatch = (prop.location?.city || '').toLowerCase().includes(q);
+        const neighborhoodMatch = (prop.location?.neighborhood || '').toLowerCase().includes(q);
         const refMatch = (prop.referenceNumber || '').toLowerCase().includes(q);
-        if (!titleMatch && !descMatch && !cityMatch && !refMatch) {
+        if (!titleMatch && !descMatch && !cityMatch && !neighborhoodMatch && !refMatch) {
           return false;
         }
       }
@@ -390,7 +414,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (filters.maxSurface !== undefined && filters.maxSurface > 0 && prop.surface > filters.maxSurface) {
         return false;
       }
-      // 7. Verified only
+      // 7. Bedrooms
+      if (filters.bedrooms && filters.bedrooms !== 'all') {
+        const requiredRooms = Number(filters.bedrooms);
+        if (!isNaN(requiredRooms) && requiredRooms > 0) {
+          if (!prop.bedrooms || prop.bedrooms < requiredRooms) {
+            return false;
+          }
+        }
+      }
+      // 8. Verified only
       if (filters.verifiedOnly && !prop.verified) {
         return false;
       }

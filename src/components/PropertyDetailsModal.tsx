@@ -17,12 +17,15 @@ import {
   CheckCircle2, 
   Phone, 
   MessageSquare, 
+  MessageCircle,
   ShieldCheck, 
   Copy, 
   Check, 
   Send,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface PropertyDetailsModalProps {
@@ -106,28 +109,28 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
       <div 
         id="property-details-modal"
-        className="relative bg-white dark:bg-[#0f0f0f] text-slate-900 dark:text-[#e5e5e5] rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-white/10"
+        className="relative bg-white dark:bg-[#0f0f0f] text-slate-900 dark:text-[#e5e5e5] rounded-t-3xl sm:rounded-3xl max-w-4xl w-full min-h-screen sm:min-h-0 sm:max-h-[92vh] overflow-y-auto shadow-2xl border-t sm:border border-slate-200 dark:border-white/10 flex flex-col mt-auto sm:my-auto"
       >
         
         {/* Sticky Header with Controls */}
-        <div className="sticky top-0 z-20 flex items-center justify-between p-4 bg-white/95 dark:bg-[#0f0f0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
+        <div className="sticky top-0 z-20 flex items-center justify-between p-3.5 sm:p-4 bg-white/95 dark:bg-[#0f0f0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider ${
+            <span className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider ${
               property.transactionType === 'sale'
                 ? 'bg-[#FBBF24] text-slate-950'
                 : 'bg-[#0B3D91] text-white'
             }`}>
               {property.transactionType === 'sale' ? t('forSale') : t('forRent')}
             </span>
-            <span className="text-xs font-mono text-slate-500 dark:text-[#888888]">
+            <span className="text-xs font-mono text-slate-500 dark:text-[#888888] hidden sm:inline">
               {t('reference')}: {property.referenceNumber}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Share */}
             <button
               onClick={handleNativeShare}
@@ -171,16 +174,45 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6 flex-1">
           
           {/* Gallery Showcase */}
           <div className="space-y-3">
-            <div className="relative aspect-16/10 rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#181818] shadow-md border border-slate-200/80 dark:border-white/10">
+            <div className="relative aspect-16/10 rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#181818] shadow-md border border-slate-200/80 dark:border-white/10 group">
               <img 
                 src={property.images[activePhotoIndex]?.url || property.images[0]?.url} 
                 alt={property.title}
                 className="w-full h-full object-cover"
               />
+
+              {/* Prev / Next Chevrons on Image */}
+              {property.images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePhotoIndex((prev) => (prev === 0 ? property.images.length - 1 : prev - 1));
+                    }}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer z-10 active:scale-95 shadow-md"
+                    aria-label="Photo précédente"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePhotoIndex((prev) => (prev === property.images.length - 1 ? 0 : prev + 1));
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer z-10 active:scale-95 shadow-md"
+                    aria-label="Photo suivante"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
               <div className="absolute bottom-3 right-3 rtl:right-auto rtl:left-3 bg-black/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium border border-white/10">
                 {activePhotoIndex + 1} / {property.images.length}
               </div>
@@ -188,12 +220,12 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
 
             {/* Thumbnails row */}
             {property.images.length > 1 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {property.images.map((img, idx) => (
                   <button
                     key={img.id}
                     onClick={() => setActivePhotoIndex(idx)}
-                    className={`relative w-20 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                    className={`relative w-16 sm:w-20 h-12 sm:h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer active:scale-95 ${
                       activePhotoIndex === idx 
                         ? 'border-[#0B3D91] dark:border-[#FBBF24] scale-102 shadow-md' 
                         : 'border-slate-200 dark:border-white/10 opacity-60 hover:opacity-100'
@@ -441,6 +473,39 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
             </div>
           </div>
 
+        </div>
+
+        {/* Sticky Bottom Quick Contact Bar on Mobile */}
+        <div className="sticky sm:hidden bottom-0 left-0 right-0 z-30 p-3 bg-white/95 dark:bg-[#0f0f0f]/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 flex items-center gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl mt-auto">
+          <a
+            href={`tel:${property.ownerPhone}`}
+            className="flex-1 py-3 px-3 rounded-xl bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-transform"
+          >
+            <Phone className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+            <span>{t('callAdvertiser')}</span>
+          </a>
+          {property.ownerWhatsapp && (
+            <a
+              href={`https://wa.me/${property.ownerWhatsapp.replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-3 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-transform"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp</span>
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              startConversationWithSeller(property);
+              onClose();
+            }}
+            className="p-3 rounded-xl bg-[#0B3D91] hover:bg-[#082E6E] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer"
+            title={t('sendMessage')}
+          >
+            <MessageSquare className="w-5 h-5" />
+          </button>
         </div>
 
       </div>

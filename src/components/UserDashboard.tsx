@@ -98,7 +98,7 @@ export const UserDashboard: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('publish')}
-          className="px-5 py-2.5 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider shadow-md inline-flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+          className="w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider shadow-md inline-flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>{t('navPublish')}</span>
@@ -234,20 +234,20 @@ export const UserDashboard: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 self-end sm:self-center">
+                <div className="flex items-center flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                   <button
                     onClick={() => setSelectedProperty(prop)}
                     className="p-2 text-[#888888] hover:text-white hover:bg-[#1a1a1a] rounded-lg text-xs font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
                     title="Voir l'annonce"
                   >
                     <ExternalLink className="w-4 h-4 text-[#c5a36c]" />
-                    <span className="hidden sm:inline">Aperçu</span>
+                    <span className="sm:inline">Aperçu</span>
                   </button>
 
                   {prop.status === 'published' && (
                     <button
                       onClick={() => updatePropertyStatus(prop.id, 'sold_rented')}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#181818] hover:bg-[#202020] border border-white/10 text-[#c5a36c] text-xs font-semibold cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#181818] hover:bg-[#202020] border border-white/10 text-[#c5a36c] text-xs font-semibold cursor-pointer active:scale-95"
                     >
                       Marquer Vendu/Loué
                     </button>
@@ -256,7 +256,7 @@ export const UserDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setPropertyToDelete(prop)}
-                    className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
+                    className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm ml-auto sm:ml-0"
                     title="Supprimer définitivement cette annonce"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

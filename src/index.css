@@ -123,3 +123,41 @@
   color: #FFFFFF !important;
 }
 
+/* ImmoPlus Map Marker Animations & Styles */
+@keyframes immoplus-radar {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.immoplus-radar-ring {
+  animation: immoplus-radar 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+/* Leaflet Custom Property Popup Styling */
+.immoplus-map-popup-container .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+}
+
+.immoplus-map-popup-container .leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.immoplus-map-popup-container .leaflet-popup-tip-container {
+  display: none;
+}
+

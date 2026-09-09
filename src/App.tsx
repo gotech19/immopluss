@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
       <Header />
 
       {/* Main Routed View */}
-      <main className="flex-1">
+      <main className="flex-1 pb-20 lg:pb-0">
         {activeTab === 'home' && <HomeView />}
         {activeTab === 'properties' && <PropertiesListView />}
         {activeTab === 'map' && <FullMapView />}

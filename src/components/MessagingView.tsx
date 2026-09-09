@@ -42,20 +42,20 @@ export const MessagingView: React.FC = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-160px)] min-h-[550px] flex flex-col">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-6 h-[calc(100dvh-140px)] sm:h-[calc(100vh-160px)] min-h-[450px] sm:min-h-[550px] flex flex-col">
       
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-3 sm:mb-4 flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-medium text-white flex items-center gap-2.5">
-            <MessageSquare className="w-6 h-6 text-[#c5a36c]" />
+          <h1 className="font-serif text-xl sm:text-2xl font-medium text-white flex items-center gap-2.5">
+            <MessageSquare className="w-5 sm:w-6 h-5 sm:h-6 text-[#c5a36c]" />
             <span>{t('messagingTitle')}</span>
           </h1>
-          <p className="text-xs text-[#888888] mt-0.5">Échangez directement et en toute sécurité avec les propriétaires et agences</p>
+          <p className="text-xs text-[#888888] mt-0.5 hidden sm:block">Échangez directement et en toute sécurité avec les propriétaires et agences</p>
         </div>
       </div>
 
-      <div className="flex-1 bg-[#0f0f0f] rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="flex-1 bg-[#0f0f0f] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row">
         
         {/* Left: Conversation List */}
         <div className={`w-full md:w-80 lg:w-96 border-r rtl:border-r-0 rtl:border-l border-white/10 bg-[#0f0f0f] flex flex-col ${
@@ -133,10 +133,11 @@ export const MessagingView: React.FC = () => {
             
             {/* Chat Header */}
             <div className="p-3 sm:p-4 bg-[#0f0f0f] border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveConversationId(null)}
-                  className="md:hidden p-1 text-[#888888] hover:text-white"
+                  className="md:hidden p-2 rounded-xl text-[#888888] hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1 text-xs"
+                  aria-label="Retour aux messages"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -145,12 +146,12 @@ export const MessagingView: React.FC = () => {
                   alt="" 
                   className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/10"
                 />
-                <div>
-                  <h3 className="font-serif text-xs sm:text-sm font-medium text-white truncate max-w-[200px] sm:max-w-xs">
+                <div className="min-w-0">
+                  <h3 className="font-serif text-xs sm:text-sm font-medium text-white truncate max-w-[170px] sm:max-w-xs">
                     {activeConv.propertyTitle}
                   </h3>
-                  <p className="text-[11px] text-[#888888]">
-                    Interlocuteur : {activeConv.participantNames.find(n => n !== userProfile?.displayName) || activeConv.participantNames[0]}
+                  <p className="text-[11px] text-[#888888] truncate max-w-[170px] sm:max-w-xs">
+                    {activeConv.participantNames.find(n => n !== userProfile?.displayName) || activeConv.participantNames[0]}
                   </p>
                 </div>
               </div>
@@ -194,17 +195,17 @@ export const MessagingView: React.FC = () => {
             </div>
 
             {/* Input Bar */}
-            <form onSubmit={handleSend} className="p-3 bg-[#0f0f0f] border-t border-white/10 flex items-center gap-2">
+            <form onSubmit={handleSend} className="p-3 bg-[#0f0f0f] border-t border-white/10 flex items-center gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder={t('typeMessagePlaceholder')}
-                className="flex-1 p-2.5 rounded-xl border border-white/10 bg-[#161616] text-white placeholder-[#666666] text-xs focus:border-[#c5a36c]/60"
+                className="flex-1 p-2.5 rounded-xl border border-white/10 bg-[#161616] text-white placeholder-[#666666] text-xs focus:border-[#c5a36c]/60 min-h-[42px]"
               />
               <button
                 type="submit"
-                className="p-2.5 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] font-bold transition-all shadow-md cursor-pointer"
+                className="p-2.5 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] font-bold transition-all shadow-md cursor-pointer active:scale-95"
               >
                 <Send className="w-4 h-4" />
               </button>

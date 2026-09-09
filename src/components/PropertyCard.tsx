@@ -81,13 +81,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect }
             e.stopPropagation();
             toggleFavorite(property.id);
           }}
-          className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 p-2 rounded-full backdrop-blur-md shadow-md transition-all z-10 cursor-pointer ${
+          className={`absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 p-2.5 min-w-[40px] min-h-[40px] rounded-full backdrop-blur-md shadow-md transition-all z-10 cursor-pointer flex items-center justify-center active:scale-90 ${
             favorited 
-              ? 'bg-rose-500 text-white scale-110' 
-              : 'bg-white/80 dark:bg-[#0a0a0a]/60 text-slate-700 dark:text-white hover:text-rose-500 border border-white/20'
+              ? 'bg-rose-500 text-white scale-105' 
+              : 'bg-white/85 dark:bg-[#0a0a0a]/70 text-slate-700 dark:text-white hover:text-rose-500 border border-white/20'
           }`}
+          aria-label={t('navFavorites')}
         >
-          <Heart className={`w-3.5 h-3.5 ${favorited ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 ${favorited ? 'fill-current' : ''}`} />
         </button>
 
         {/* Price displayed over bottom of image */}

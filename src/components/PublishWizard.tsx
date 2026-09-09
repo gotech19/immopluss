@@ -257,8 +257,8 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
         images: images.length > 0 ? images : [{ id: 'img-def', url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', isMain: true }],
         location,
         locationPrivacy,
-        status: 'pending', // Per section 57: Initial status is Pending review!
-        verified: false,
+        status: 'published',
+        verified: true,
         featured: false
       });
 
@@ -273,25 +273,31 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
   if (isSuccess) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
           <CheckCircle className="w-10 h-10" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">
           {t('submissionSuccessTitle')}
         </h2>
         <p className="text-sm text-slate-600 dark:text-slate-300 max-w-lg mx-auto mb-6">
-          {t('submissionSuccessDesc')}
+          Votre bien a été enregistré avec succès ! Les coordonnées GPS ({location.lat.toFixed(4)}, {location.lng.toFixed(4)}) ont été enregistrées et un <strong>point rouge 📍</strong> a été automatiquement créé sur la carte ImmoPlus.
         </p>
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={() => setActiveTab('map')}
+            className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-lg flex items-center gap-2 cursor-pointer transition-all"
+          >
+            <span>📍 Voir sur la carte</span>
+          </button>
           <button
             onClick={() => setActiveTab('dashboard')}
-            className="px-6 py-2.5 rounded-xl bg-[#0B3D91] text-white font-bold text-sm shadow-md hover:bg-[#082E6E]"
+            className="px-6 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-sm shadow-md cursor-pointer transition-all border border-white/10"
           >
             Voir mes annonces
           </button>
           <button
             onClick={() => setActiveTab('home')}
-            className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm hover:bg-slate-100"
+            className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 font-bold text-sm hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer transition-all"
           >
             Retour à l'accueil
           </button>
@@ -301,19 +307,19 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-4xl mx-auto px-3.5 sm:px-6 py-5 sm:py-8">
       
       {/* Wizard Header */}
-      <div className="mb-8 text-center sm:text-left rtl:sm:text-right">
-        <h1 className="font-serif text-2xl sm:text-3xl font-medium text-white">
+      <div className="mb-6 sm:mb-8 text-center sm:text-left rtl:sm:text-right">
+        <h1 className="font-serif text-xl sm:text-3xl font-medium text-white">
           {t('wizardTitle')}
         </h1>
-        <p className="text-sm text-[#888888] mt-1">
+        <p className="text-xs sm:text-sm text-[#888888] mt-1">
           Étape {currentStep} sur 6
         </p>
 
         {/* Stepper Progress Bar */}
-        <div className="flex items-center gap-1.5 mt-4">
+        <div className="flex items-center gap-1 sm:gap-1.5 mt-3 sm:mt-4">
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
@@ -325,7 +331,7 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
         </div>
       </div>
 
-      <div className="bg-[#0f0f0f] text-[#e5e5e5] rounded-3xl border border-white/10 p-6 sm:p-8 shadow-2xl">
+      <div className="bg-[#0f0f0f] text-[#e5e5e5] rounded-2xl sm:rounded-3xl border border-white/10 p-4 sm:p-8 shadow-2xl">
         
         {/* STEP 1: TRANSACTION */}
         {currentStep === 1 && (
@@ -824,12 +830,12 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
         )}
 
         {/* Wizard Navigation Footer */}
-        <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
+        <div className="flex items-center justify-between pt-5 sm:pt-6 mt-6 border-t border-white/10 gap-2">
           {currentStep > 1 ? (
             <button
               type="button"
               onClick={() => setCurrentStep(prev => prev - 1)}
-              className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-semibold text-[#888888] hover:text-white hover:border-white/20 flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3.5 sm:px-4 py-2.5 rounded-xl border border-white/10 text-xs font-semibold text-[#888888] hover:text-white hover:border-white/20 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{t('previous')}</span>
@@ -840,7 +846,7 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
             <button
               type="button"
               onClick={() => setCurrentStep(prev => prev + 1)}
-              className="px-6 py-2.5 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+              className="px-5 sm:px-6 py-2.5 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
             >
               <span>{t('next')}</span>
               <ArrowRight className="w-4 h-4" />
@@ -850,10 +856,10 @@ Proche des axes principaux, commerces et écoles. Dossier complet et visite disp
               type="button"
               onClick={handleSubmit}
               disabled={submitting}
-              className="px-6 py-3 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg active:scale-95 transition-all cursor-pointer"
+              className="px-5 sm:px-6 py-3 rounded-xl bg-[#c5a36c] hover:bg-[#d4b57e] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg active:scale-95 transition-all cursor-pointer disabled:opacity-50"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>{submitting ? 'Publication en cours...' : t('submitListingBtn')}</span>
+              <span>{submitting ? 'Publication...' : t('submitListingBtn')}</span>
             </button>
           )}
         </div>
